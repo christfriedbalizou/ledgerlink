@@ -13,7 +13,7 @@ function isLoggedIn(req, res, next) {
     return next();
   }
   // User is not authenticated, redirect to the login page
-  res.redirect('/auth/login');
+  res.redirect("/auth/login");
 }
 
 /**
@@ -29,7 +29,7 @@ function isAdmin(req, res, next) {
     return next();
   }
   // Forbidden access
-  res.status(403).send('Access Denied: You must be an administrator.');
+  res.status(403).send("Access Denied: You must be an administrator.");
 }
 
 module.exports = { isLoggedIn, isAdmin };

@@ -1,9 +1,9 @@
-const prisma = require('./prisma');
-const { Prisma } = require('@prisma/client');
+const prisma = require("./prisma");
+const { Prisma } = require("@prisma/client");
 
 async function main() {
   console.log(`[Seed] Starting database seeding...`);
-  
+
   // We'll check if an admin user already exists.
   const adminExists = await prisma.user.findFirst({
     where: { is_admin: true },
@@ -15,12 +15,14 @@ async function main() {
     // Create the first user and designate them as the admin.
     const newAdminUser = await prisma.user.create({
       data: {
-        email: 'admin@example.com', // Placeholder email; this will be the first user to log in.
+        email: "admin@example.com", // Placeholder email; this will be the first user to log in.
         is_admin: true,
       },
     });
 
-    console.log(`[Seed] Created new admin user: ${newAdminUser.email} (ID: ${newAdminUser.id})`);
+    console.log(
+      `[Seed] Created new admin user: ${newAdminUser.email} (ID: ${newAdminUser.id})`,
+    );
   }
 
   console.log(`[Seed] Database seeding finished.`);

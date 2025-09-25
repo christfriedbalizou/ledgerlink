@@ -1,6 +1,6 @@
-const passport = require('passport');
-const { Issuer, Strategy } = require('openid-client');
-const User = require('../models/User'); // Your User model from a previous step
+const passport = require("passport");
+const { Issuer, Strategy } = require("openid-client");
+const User = require("../models/User"); // Your User model from a previous step
 
 /**
  * This function configures Passport.js with the OpenID Connect strategy.
@@ -12,7 +12,9 @@ async function configurePassport() {
   const redirect_uri = process.env.OIDC_CALLBACK_URL;
 
   if (!issuer_url || !client_id || !client_secret || !redirect_uri) {
-    console.warn('[Passport] Missing one or more OIDC configuration environment variables. Authentication will not work correctly.');
+    console.warn(
+      "[Passport] Missing one or more OIDC configuration environment variables. Authentication will not work correctly.",
+    );
     return;
   }
 
@@ -25,7 +27,7 @@ async function configurePassport() {
       client_id,
       client_secret,
       redirect_uris: [redirect_uri],
-      response_types: ['code'],
+      response_types: ["code"],
     });
 
     // 3. Define the Passport Strategy
@@ -47,7 +49,9 @@ async function configurePassport() {
               email,
               is_admin: isAdmin,
             });
-            console.log(`[Passport] New user created: ${user.email}. Is Admin: ${isAdmin}`);
+            console.log(
+              `[Passport] New user created: ${user.email}. Is Admin: ${isAdmin}`,
+            );
           }
 
           // Return the user object to Passport
@@ -55,11 +59,11 @@ async function configurePassport() {
         } catch (error) {
           return done(error);
         }
-      }
+      },
     );
 
     // 4. Register the Strategy with Passport
-    passport.use('oidc', oidcStrategy);
+    passport.use("oidc", oidcStrategy);
 
     // 5. Serialize and Deserialize Users (required for session management)
     // Serialize: Save a minimal user ID to the session
@@ -77,9 +81,9 @@ async function configurePassport() {
       }
     });
 
-    console.log('[Passport] OpenID Connect strategy configured successfully.');
+    console.log("[Passport] OpenID Connect strategy configured successfully.");
   } catch (error) {
-    console.error('[Passport] Failed to discover OpenID Issuer:', error);
+    console.error("[Passport] Failed to discover OpenID Issuer:", error);
     process.exit(1);
   }
 }

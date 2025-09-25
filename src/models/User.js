@@ -1,4 +1,4 @@
-const prisma = require('../db/prisma');
+const prisma = require("../db/prisma");
 
 /**
  * A module to handle all database operations related to the User model.
