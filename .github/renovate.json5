@@ -9,6 +9,7 @@
     ":automergeBranch",
     "./labels.json5",
     "./semanticCommits.json5",
+    "./autoMerge.json5",
     "helpers:pinGitHubActionDigests"
   ],
   "platform": "github",

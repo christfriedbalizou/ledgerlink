@@ -10,22 +10,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
+
       - name: Install dependencies
         run: npm ci
+
       - name: Copy .env.example to .env
         run: cp .env.example .env
+
       - name: Run tests
         run: npm test
+
       - name: Generate Token
         uses: tibdex/github-app-token@3beb63f4bd073e61482598c45c71c1019b59b73a # v2.1.0
         id: generate-token
         with:
           app_id: "${{ secrets.BOT_APP_ID }}"
           private_key: "${{ secrets.BOT_APP_PRIVATE_KEY }}"
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
