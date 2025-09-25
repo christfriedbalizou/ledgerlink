@@ -2,9 +2,9 @@
 
 [![Test Status](https://img.shields.io/github/actions/workflow/status/christfriedbalizou/ledgerlink/ci.yml?branch=main&label=Tests&logo=github&style=for-the-badge)](https://github.com/christfriedbalizou/ledgerlink/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/christfriedbalizou/ledgerlink?include_prereleases&label=Release&logo=github&style=for-the-badge)](https://github.com/christfriedbalizou/ledgerlink/releases)
-[![LedgerLink Status](https://img.shields.io/badge/Status-In%20Development-blue.svg)](https://github.com/your-repo-link)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Powered by Plaid](https://img.shields.io/badge/Powered%20by-Plaid-A8B9D9.svg)](https://plaid.com/)
+[![LedgerLink Status](https://img.shields.io/badge/Status-In%20Development-blue.svg?style=for-the-badge&logo=vercel)](https://github.com/your-repo-link)
+[![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge&logo=open-source-initiative)](LICENSE)
+[![Powered by Plaid](https://img.shields.io/badge/Powered%20by-Plaid-A8B9D9.svg?style=for-the-badge&logo=plaid)](https://plaid.com/)
 
 LedgerLink is a self-hosted, open-source application designed to bridge the gap between your live bank accounts and your preferred financial management tools or personal data archives. Securely connect to your financial institutions via Plaid, and let LedgerLink automatically deliver your transaction and balance data exactly where you need it – whether that's your self-hosted Actual Budget instance or directly to your inbox as a CSV.
 
