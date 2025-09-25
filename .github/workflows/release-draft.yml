@@ -1,19 +1,22 @@
-name: Labeler
+name: Release Draft
 
 on:
-  pull_request:
-    branches: [main]
+  push:
+    branches:
+      - main
 
 jobs:
-  label:
+  release-draft:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - name: Generate Token
         uses: tibdex/github-app-token@3beb63f4bd073e61482598c45c71c1019b59b73a # v2.1.0
         id: generate-token
         with:
           app_id: "${{ secrets.BOT_APP_ID }}"
           private_key: "${{ secrets.BOT_APP_PRIVATE_KEY }}"
-      - uses: actions/labeler@v5
-        with:
-          repo-token: "${{ steps.generate-token.outputs.token }}"
+      - name: Release Drafter
+        uses: release-drafter/release-drafter@v6
+        env:
+          GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
