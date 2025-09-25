@@ -1,19 +1,24 @@
 dependencies:
-  - package.json
-  - package-lock.json
-  - renovate.json
-  - '**/package.json'
-  - '**/yarn.lock'
-  - '**/pnpm-lock.yaml'
-
+  - name: dependencies
+    files:
+      - package.json
+      - package-lock.json
+      - renovate.json
+      - '**/package.json'
+      - '**/yarn.lock'
+      - '**/pnpm-lock.yaml'
 major:
-  - renovate.json
-  - '**/package.json'
-
+  - name: major
+    files:
+      - renovate.json
+      - '**/package.json'
 backend:
-  - src/**
-  - prisma/**
-  - server.js
-
+  - name: backend
+    files:
+      - src/**
+      - prisma/**
+      - server.js
 test:
-  - test/**
+  - name: test
+    files:
+      - test/**
