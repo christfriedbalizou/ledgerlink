@@ -1,5 +1,7 @@
 # 🔗 LedgerLink: The Self-Hosted Financial Data Router
 
+[![Test Status](https://github.com/christfriedbalizou/ledgerlink/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/christfriedbalizou/ledgerlink/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/christfriedbalizou/ledgerlink?include_prereleases)](https://github.com/christfriedbalizou/ledgerlink/releases)
 [![LedgerLink Status](https://img.shields.io/badge/Status-In%20Development-blue.svg)](https://github.com/your-repo-link)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Powered by Plaid](https://img.shields.io/badge/Powered%20by-Plaid-A8B9D9.svg)](https://plaid.com/)
