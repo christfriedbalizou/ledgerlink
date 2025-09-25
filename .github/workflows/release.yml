@@ -32,9 +32,7 @@ jobs:
           app_id: "${{ secrets.BOT_APP_ID }}"
           private_key: "${{ secrets.BOT_APP_PRIVATE_KEY }}"
 
-      - name: Create Release
-        uses: softprops/action-gh-release@v2
-        with:
-          generate_release_notes: true
+      - name: Publish Latest Release
+        uses: ivangabriele/publish-latest-release@df1a4afd8aea9d1f0ba5ebeb89452aeac7bca0a9 # renovate: tag=v3
         env:
-          GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
+          GITHUB_TOKEN: "${{ steps.generate-token.outputs.token }}"
