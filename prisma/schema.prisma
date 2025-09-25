@@ -1,0 +1,30 @@
+// prisma/schema.prisma
+
+// This file is the main file for the Prisma schema.
+// It defines your database connection, a generator for the client,
+// and the data models.
+
+// Set up the database provider. We're using PostgreSQL.
+datasource db {
+  provider = env("DATABASE_PROVIDER")
+  url      = env("DATABASE_URL")
+}
+
+// Set up the Prisma client generator.
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ----------------------------------------------------
+// Data Models
+// ----------------------------------------------------
+
+// User model: stores user information and their authentication data.
+// The is_admin field is crucial for your Oct 4 task.
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  is_admin  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
