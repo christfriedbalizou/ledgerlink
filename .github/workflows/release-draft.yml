@@ -1,9 +1,9 @@
 name: Release Draft
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * 0"
 
 jobs:
   release-draft:
@@ -16,7 +16,7 @@ jobs:
         with:
           app_id: "${{ secrets.BOT_APP_ID }}"
           private_key: "${{ secrets.BOT_APP_PRIVATE_KEY }}"
-      - name: Release Drafter
-        uses: release-drafter/release-drafter@v6
+      - name: Publish Latest Release
+        uses: ivangabriele/publish-latest-release@df1a4afd8aea9d1f0ba5ebeb89452aeac7bca0a9
         env:
           GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}

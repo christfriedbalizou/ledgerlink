@@ -1,0 +1,34 @@
+# Area
+- name: area/github
+  color: "72ccf3"
+  description: >-
+    Changes made in the github directory
+# Renovate
+- name: renovate/github-action
+  color: "ffc300"
+- name: renovate/github-release
+  color: "ffc300"
+# Semantic Type
+- name: type/patch
+  color: "FFEC19"
+- name: type/minor
+  color: "FF9800"
+- name: type/major
+  color: "F6412D"
+# Uncategorized
+- name: bug
+  color: "ee0701"
+- name: docs
+  color: "F4D1B7"
+- name: enhancement
+  color: "84b6eb"
+- name: question
+  color: "cc317c"
+- name: community
+  color: "0e8a16"
+- name: chore
+  color: "cccccc"
+- name: feature
+  color: "0052cc"
+- name: test
+  color: "fbca04"

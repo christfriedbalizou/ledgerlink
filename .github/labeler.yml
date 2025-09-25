@@ -1,24 +1,46 @@
-dependencies:
-  - name: dependencies
-    files:
-      - package.json
-      - package-lock.json
-      - renovate.json
-      - '**/package.json'
-      - '**/yarn.lock'
-      - '**/pnpm-lock.yaml'
-major:
-  - name: major
-    files:
-      - renovate.json
-      - '**/package.json'
-backend:
-  - name: backend
-    files:
-      - src/**
-      - prisma/**
-      - server.js
+# Area
+area/github:
+  - changed-files:
+      - any-glob-to-any-file: .github/**/*
+# Semantic
+feature:
+  - changed-files:
+      - any-glob-to-any-file: src/features/**/*
+      - any-glob-to-any-file: src/routes/**/*
+      - any-glob-to-any-file: src/controllers/**/*
+      - any-glob-to-any-file: prisma/migrations/**/*
+bug:
+  - changed-files:
+      - any-glob-to-any-file: src/**/*.js
+      - any-glob-to-any-file: test/**/bugfix-*.js
+chore:
+  - changed-files:
+      - any-glob-to-any-file: package.json
+      - any-glob-to-any-file: package-lock.json
+      - any-glob-to-any-file: renovate.json
+      - any-glob-to-any-file: .github/**/*
+      - any-glob-to-any-file: scripts/**/*
+      - any-glob-to-any-file: '**/README.md'
+docs:
+  - changed-files:
+      - any-glob-to-any-file: docs/**/*
+      - any-glob-to-any-file: '**/*.md'
 test:
-  - name: test
-    files:
-      - test/**
+  - changed-files:
+      - any-glob-to-any-file: test/**/*
+      - any-glob-to-any-file: '**/*.test.js'
+type/major:
+  - changed-files:
+      - any-glob-to-any-file: '**'
+type/minor:
+  - changed-files:
+      - any-glob-to-any-file: '**'
+type/patch:
+  - changed-files:
+      - any-glob-to-any-file: '**'
+renovate/github-release:
+  - changed-files:
+      - any-glob-to-any-file: .github/workflows/**/*
+renovate/github-action:
+  - changed-files:
+      - any-glob-to-any-file: .github/workflows/**/*
