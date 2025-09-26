@@ -6,7 +6,7 @@
   "scripts": {
     "start": "npm run db:push && node server.js",
     "dev": "npm run db:push && nodemon server.js",
-    "test": "npm run db:seed && node --experimental-vm-modules node_modules/.bin/jest",
+    "test": "npm run db:seed && node --experimental-vm-modules node_modules/.bin/jest --runInBand",
     "db:generate": "node scripts/generate-schema.js && prisma generate",
     "db:migrate": "node scripts/generate-schema.js && prisma migrate dev --name init --create-only",
     "db:push": "node scripts/generate-schema.js && prisma db push",
