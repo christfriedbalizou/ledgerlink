@@ -1,0 +1,42 @@
+name: Security
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 3 * * *' # daily at 03:00 UTC
+
+jobs:
+  security_audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Install production deps
+        run: npm ci --omit=dev
+      - name: npm audit (production) fail on high/critical
+        run: |
+          set -e
+          OUT=$(npm audit --production --json || true)
+          echo "$OUT" | jq '.metadata.vulnerabilities' || true
+          HIGH=$(echo "$OUT" | jq '.metadata.vulnerabilities.high')
+          CRITICAL=$(echo "$OUT" | jq '.metadata.vulnerabilities.critical')
+          if [ -z "$HIGH" ] || [ "$HIGH" = "null" ]; then HIGH=0; fi
+          if [ -z "$CRITICAL" ] || [ "$CRITICAL" = "null" ]; then CRITICAL=0; fi
+          if [ "$HIGH" -gt 0 ] || [ "$CRITICAL" -gt 0 ]; then
+            echo "High or Critical vulnerabilities detected (high=$HIGH critical=$CRITICAL). Failing build." >&2
+            exit 1
+          fi
+          echo "No high/critical vulnerabilities detected."
+      - name: Secret scan (trufflehog)
+        uses: trufflesecurity/trufflehog@v3.81.6
+        with:
+          path: .
+          base: ${{ github.event.pull_request.base.sha || 'HEAD~1' }}
+          head: ${{ github.sha }}
+          extra_args: '--only-verified'
