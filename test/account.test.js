@@ -19,7 +19,6 @@ describe("Account Model", () => {
   it("should link an account for a user", async () => {
     const account = await Account.createForUser(user.id, {
       plaidItemId: "item-abc",
-      plaidAccessToken: "encrypted-token",
       institutionName: "Test Bank",
       institutionId: "ins_abc",
     });
@@ -30,20 +29,17 @@ describe("Account Model", () => {
   it("should enforce account limit (default 2)", async () => {
     await Account.createForUser(user.id, {
       plaidItemId: "item-1",
-      plaidAccessToken: "token-1",
       institutionName: "Bank 1",
       institutionId: "ins_1",
     });
     await Account.createForUser(user.id, {
       plaidItemId: "item-2",
-      plaidAccessToken: "token-2",
       institutionName: "Bank 2",
       institutionId: "ins_2",
     });
     await expect(
       Account.createForUser(user.id, {
         plaidItemId: "item-3",
-        plaidAccessToken: "token-3",
         institutionName: "Bank 3",
         institutionId: "ins_3",
       }),
@@ -53,7 +49,6 @@ describe("Account Model", () => {
   it("should remove an account by id", async () => {
     const account = await Account.createForUser(user.id, {
       plaidItemId: "item-x",
-      plaidAccessToken: "token-x",
       institutionName: "Bank X",
       institutionId: "ins_x",
     });

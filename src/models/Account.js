@@ -10,7 +10,9 @@ class Account {
     if (count >= maxAccounts) {
       throw new Error(`Account limit (${maxAccounts}) reached.`);
     }
-    return prisma.account.create({ data: { ...accountData, userId } });
+    // Remove plaidAccessToken if present in accountData
+    const { plaidAccessToken, ...rest } = accountData;
+    return prisma.account.create({ data: { ...rest, userId } });
   }
 
   static async removeById(userId, accountId) {
@@ -18,7 +20,7 @@ class Account {
   }
 
   static async findByPlaidItemId(plaidItemId) {
-    return prisma.account.findUnique({ where: { plaidItemId } });
+    return prisma.account.findFirst({ where: { plaidItemId } });
   }
 }
 

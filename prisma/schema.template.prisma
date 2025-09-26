@@ -17,6 +17,7 @@ model User {
   email     String    @unique
   is_admin  Boolean   @default(false)
   accounts  Account[]
+  plaidItems PlaidItem[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 }
@@ -25,7 +26,19 @@ model Account {
   id                String   @id @default(uuid())
   userId            String
   plaidItemId       String   @unique
+  institutionName   String
+  institutionId     String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PlaidItem {
+  id                String   @id @default(uuid())
+  userId            String
+  plaidItemId       String   @unique
   plaidAccessToken  String   // Encrypted
+  products          String   // Comma-separated list of products
   institutionName   String
   institutionId     String
   createdAt         DateTime @default(now())

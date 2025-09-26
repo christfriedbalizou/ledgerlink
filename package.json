@@ -4,13 +4,12 @@
   "description": "Base project for OIDC/OAuth2 application setup.",
   "main": "server.js",
   "scripts": {
-    "start": "npm run db:push && node server.js",
-    "dev": "npm run db:push && nodemon server.js",
+    "start": "npm run db:migrate && node server.js",
+    "dev": "npm run db:migrate && nodemon server.js",
     "test": "npm run db:seed && node --experimental-vm-modules node_modules/.bin/jest --runInBand",
     "db:generate": "node scripts/generate-schema.js && prisma generate",
-    "db:migrate": "node scripts/generate-schema.js && prisma migrate dev --name init --create-only",
-    "db:push": "node scripts/generate-schema.js && prisma db push",
-    "db:seed": "npm run db:push && node src/db/seed.js"
+    "db:migrate": "node scripts/generate-schema.js && prisma migrate deploy",
+    "db:seed": "npm run db:migrate && node src/db/seed.js"
   },
   "keywords": [
     "express",
@@ -26,7 +25,8 @@
     "express": "^5.0.0",
     "express-session": "^1.18.2",
     "openid-client": "^6.8.0",
-    "passport": "^0.7.0"
+    "passport": "^0.7.0",
+    "plaid": "^38.1.0"
   },
   "devDependencies": {
     "@prisma/client": "^6.16.2",

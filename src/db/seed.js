@@ -5,7 +5,9 @@ import { logger } from "../utils/logger.js";
 async function main() {
   logger.info(`[Seed] Starting database seeding...`);
   await prisma.account.deleteMany();
+  await prisma.plaidItem.deleteMany();
   await prisma.user.deleteMany();
+
   const admin = await prisma.user.create({
     data: {
       email: "admin@example.com",
@@ -18,13 +20,35 @@ async function main() {
       is_admin: false,
     },
   });
+
   const fakeAccessToken1 = encryptToken("access-sandbox-1");
   const fakeAccessToken2 = encryptToken("access-sandbox-2");
-  await prisma.account.create({
+
+  const plaidItem1 = await prisma.plaidItem.create({
     data: {
       userId: user.id,
       plaidItemId: "item-1",
       plaidAccessToken: fakeAccessToken1,
+      products: "transactions",
+      institutionName: "Test Bank 1",
+      institutionId: "ins_1",
+    },
+  });
+  const plaidItem2 = await prisma.plaidItem.create({
+    data: {
+      userId: user.id,
+      plaidItemId: "item-2",
+      plaidAccessToken: fakeAccessToken2,
+      products: "auth",
+      institutionName: "Test Bank 2",
+      institutionId: "ins_2",
+    },
+  });
+
+  await prisma.account.create({
+    data: {
+      userId: user.id,
+      plaidItemId: plaidItem1.plaidItemId,
       institutionName: "Test Bank 1",
       institutionId: "ins_1",
     },
@@ -32,14 +56,14 @@ async function main() {
   await prisma.account.create({
     data: {
       userId: user.id,
-      plaidItemId: "item-2",
-      plaidAccessToken: fakeAccessToken2,
+      plaidItemId: plaidItem2.plaidItemId,
       institutionName: "Test Bank 2",
       institutionId: "ins_2",
     },
   });
+
   logger.info(
-    `[Seed] Created admin and user with 2 linked accounts for user@example.com`,
+    `[Seed] Created admin and user with 2 Plaid items and linked accounts for user@example.com`,
   );
   logger.info(`[Seed] Database seeding finished.`);
 }
