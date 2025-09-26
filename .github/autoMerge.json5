@@ -1,13 +1,18 @@
 {
   // Auto-merge rule for Renovate PRs (non-major)
-  "packageRules": [
+  packageRules: [
     {
-      "description": "Automerge Renovate PRs (non-major)",
-      "matchUpdateTypes": ["minor", "patch", "digest"],
-      "automerge": true,
-      "automergeType": "pr",
-      "matchManagers": ["npm", "github-actions", "github-releases", "github-tags"],
-      "excludePackagePatterns": ["major"]
-    }
-  ]
+      description: "Automerge Renovate PRs (non-major)",
+      matchUpdateTypes: ["minor", "patch", "digest"],
+      automerge: true,
+      automergeType: "pr",
+      matchManagers: [
+        "npm",
+        "github-actions",
+        "github-releases",
+        "github-tags",
+      ],
+      excludePackagePatterns: ["major"],
+    },
+  ],
 }

@@ -1,7 +1,7 @@
 {
   "extends": ["config:base"],
   "automerge": true,
-  "automergeType": "pr", 
+  "automergeType": "pr",
   "labels": ["dependencies"],
   "prHourlyLimit": 2,
   "prConcurrentLimit": 5,

@@ -1,41 +1,41 @@
-// src/routes/auth.js
+import express from "express";
+import { passport } from "../config/passport.js";
+import { isLoggedIn } from "../middleware/auth.js";
+import { logger } from "../utils/logger.js";
 
-const router = require("express").Router();
-const { passport } = require("../config/passport");
-const { isLoggedIn } = require("../middleware/auth");
+const router = express.Router();
 
-// Route to initiate the login process. Passport will redirect to the OAuth provider.
-router.get("/login", passport.authenticate("oidc"));
+router.get("/login", (req, res, next) => {
+  logger.info("Login route accessed");
+  passport.authenticate("oidc")(req, res, next);
+});
 
-// Route for the callback from the OAuth provider.
-// Passport handles the token exchange and profile fetching.
-router.get(
-  "/callback",
+router.get("/callback", (req, res, next) => {
+  logger.info("OIDC callback route accessed");
   passport.authenticate("oidc", {
-    failureRedirect: "/login", // Redirect on failure
-    successRedirect: "/profile", // Redirect on success
-  }),
-);
+    failureRedirect: "/login",
+    successRedirect: "/profile",
+  })(req, res, next);
+});
 
-// Route to log out a user.
 router.get("/logout", (req, res, next) => {
-  // Destroy the user session
+  logger.info("Logout route accessed");
   req.logout((err) => {
     if (err) {
+      logger.error("Logout error", err);
       return next(err);
     }
-    // Clear the session from the database
     req.session.destroy((destroyErr) => {
       if (destroyErr) {
-        console.error("Error destroying session:", destroyErr);
+        logger.error("Error destroying session:", destroyErr);
       }
       res.redirect("/");
     });
   });
 });
 
-// A protected profile route to test the isLoggedIn middleware.
 router.get("/profile", isLoggedIn, (req, res) => {
+  logger.info(`Profile route accessed by user: ${req.user?.email}`);
   res.send(`
     <h1>Profile Page</h1>
     <p>Welcome, ${req.user.email}!</p>
@@ -44,4 +44,5 @@ router.get("/profile", isLoggedIn, (req, res) => {
   `);
 });
 
-module.exports = router;
+export default router;
+<a href="/auth/logout">Logout</a>;

@@ -20,24 +20,24 @@ chore:
       - any-glob-to-any-file: renovate.json
       - any-glob-to-any-file: .github/**/*
       - any-glob-to-any-file: scripts/**/*
-      - any-glob-to-any-file: '**/README.md'
+      - any-glob-to-any-file: "**/README.md"
 docs:
   - changed-files:
       - any-glob-to-any-file: docs/**/*
-      - any-glob-to-any-file: '**/*.md'
+      - any-glob-to-any-file: "**/*.md"
 test:
   - changed-files:
       - any-glob-to-any-file: test/**/*
-      - any-glob-to-any-file: '**/*.test.js'
+      - any-glob-to-any-file: "**/*.test.js"
 type/major:
   - changed-files:
-      - any-glob-to-any-file: '**'
+      - any-glob-to-any-file: "**"
 type/minor:
   - changed-files:
-      - any-glob-to-any-file: '**'
+      - any-glob-to-any-file: "**"
 type/patch:
   - changed-files:
-      - any-glob-to-any-file: '**'
+      - any-glob-to-any-file: "**"
 renovate/github-release:
   - changed-files:
       - any-glob-to-any-file: .github/workflows/**/*

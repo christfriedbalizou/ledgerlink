@@ -1,38 +1,53 @@
-const prisma = require("./prisma");
-const { Prisma } = require("@prisma/client");
+import prisma from "./prisma.js";
+import { encryptToken } from "../utils/encryption.js";
+import { logger } from "../utils/logger.js";
 
 async function main() {
-  console.log(`[Seed] Starting database seeding...`);
-
-  // We'll check if an admin user already exists.
-  const adminExists = await prisma.user.findFirst({
-    where: { is_admin: true },
+  logger.info(`[Seed] Starting database seeding...`);
+  await prisma.account.deleteMany();
+  await prisma.user.deleteMany();
+  const admin = await prisma.user.create({
+    data: {
+      email: "admin@example.com",
+      is_admin: true,
+    },
   });
-
-  if (adminExists) {
-    console.log(`[Seed] Admin user already exists. Seeding aborted.`);
-  } else {
-    // Create the first user and designate them as the admin.
-    const newAdminUser = await prisma.user.create({
-      data: {
-        email: "admin@example.com", // Placeholder email; this will be the first user to log in.
-        is_admin: true,
-      },
-    });
-
-    console.log(
-      `[Seed] Created new admin user: ${newAdminUser.email} (ID: ${newAdminUser.id})`,
-    );
-  }
-
-  console.log(`[Seed] Database seeding finished.`);
+  const user = await prisma.user.create({
+    data: {
+      email: "user@example.com",
+      is_admin: false,
+    },
+  });
+  const fakeAccessToken1 = encryptToken("access-sandbox-1");
+  const fakeAccessToken2 = encryptToken("access-sandbox-2");
+  await prisma.account.create({
+    data: {
+      userId: user.id,
+      plaidItemId: "item-1",
+      plaidAccessToken: fakeAccessToken1,
+      institutionName: "Test Bank 1",
+      institutionId: "ins_1",
+    },
+  });
+  await prisma.account.create({
+    data: {
+      userId: user.id,
+      plaidItemId: "item-2",
+      plaidAccessToken: fakeAccessToken2,
+      institutionName: "Test Bank 2",
+      institutionId: "ins_2",
+    },
+  });
+  logger.info(
+    `[Seed] Created admin and user with 2 linked accounts for user@example.com`,
+  );
+  logger.info(`[Seed] Database seeding finished.`);
 }
 
-// Run the main function and disconnect from the database afterward
 main()
   .catch((e) => {
-    console.error(`[Seed] Seeding failed with error:`);
-    console.error(e);
+    logger.error(`[Seed] Seeding failed with error:`);
+    logger.error(e);
     process.exit(1);
   })
   .finally(async () => {

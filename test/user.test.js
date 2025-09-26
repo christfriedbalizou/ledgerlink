@@ -1,9 +1,7 @@
-// test/user.test.js
-
-const request = require("supertest");
-const express = require("express");
-const User = require("../src/models/User");
-const prisma = require("../src/db/prisma");
+import request from "supertest";
+import express from "express";
+import User from "../src/models/User.js";
+import prisma from "../src/db/prisma.js";
 
 // Mock Express app for authentication route testing
 const app = express();

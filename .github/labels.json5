@@ -2,77 +2,95 @@
   packageRules: [
     {
       matchUpdateTypes: ["major"],
-      labels: ["type/major"]
+      labels: ["type/major"],
     },
     {
       matchUpdateTypes: ["minor"],
-      labels: ["type/minor"]
+      labels: ["type/minor"],
     },
     {
       matchUpdateTypes: ["patch"],
-      labels: ["type/patch"]
+      labels: ["type/patch"],
     },
     {
       matchDatasources: ["github-releases", "github-tags"],
-      addLabels: ["renovate/github-release"]
+      addLabels: ["renovate/github-release"],
     },
     {
       matchManagers: ["github-actions"],
-      addLabels: ["renovate/github-action"]
+      addLabels: ["renovate/github-action"],
     },
     {
-      matchFiles: ["src/features/**", "src/routes/**", "src/controllers/**", "prisma/migrations/**"],
-      addLabels: ["feature"]
+      matchFiles: [
+        "src/features/**",
+        "src/routes/**",
+        "src/controllers/**",
+        "prisma/migrations/**",
+      ],
+      addLabels: ["feature"],
     },
     {
-      matchFiles: ["src/**/*.js", "!src/features/**", "!src/routes/**", "!src/controllers/**", "test/**/bugfix-*.js"],
-      addLabels: ["bug"]
+      matchFiles: [
+        "src/**/*.js",
+        "!src/features/**",
+        "!src/routes/**",
+        "!src/controllers/**",
+        "test/**/bugfix-*.js",
+      ],
+      addLabels: ["bug"],
     },
     {
-      matchFiles: ["package.json", "package-lock.json", "renovate.json", ".github/**", "scripts/**", "**/README.md"],
-      addLabels: ["chore"]
+      matchFiles: [
+        "package.json",
+        "package-lock.json",
+        "renovate.json",
+        ".github/**",
+        "scripts/**",
+        "**/README.md",
+      ],
+      addLabels: ["chore"],
     },
     {
       matchFiles: ["docs/**", "**/*.md"],
-      addLabels: ["docs"]
+      addLabels: ["docs"],
     },
     {
       matchFiles: ["test/**", "**/*.test.js"],
-      addLabels: ["test"]
+      addLabels: ["test"],
     },
     {
       matchDatasources: ["github-releases", "github-tags"],
       matchUpdateTypes: ["major"],
-      commitMessagePrefix: "feat(github-release)!: "
+      commitMessagePrefix: "feat(github-release)!: ",
     },
     {
       matchDatasources: ["github-releases", "github-tags"],
       matchUpdateTypes: ["minor"],
       semanticCommitType: "feat",
-      semanticCommitScope: "github-release"
+      semanticCommitScope: "github-release",
     },
     {
       matchDatasources: ["github-releases", "github-tags"],
       matchUpdateTypes: ["patch"],
       semanticCommitType: "fix",
-      semanticCommitScope: "github-release"
+      semanticCommitScope: "github-release",
     },
     {
       matchManagers: ["github-actions"],
       matchUpdateTypes: ["major"],
-      commitMessagePrefix: "feat(github-action)!: "
+      commitMessagePrefix: "feat(github-action)!: ",
     },
     {
       matchManagers: ["github-actions"],
       matchUpdateTypes: ["minor"],
       semanticCommitType: "feat",
-      semanticCommitScope: "github-action"
+      semanticCommitScope: "github-action",
     },
     {
       matchManagers: ["github-actions"],
       matchUpdateTypes: ["patch"],
       semanticCommitType: "fix",
-      semanticCommitScope: "github-action"
-    }
-  ]
+      semanticCommitScope: "github-action",
+    },
+  ],
 }

@@ -1,7 +1,5 @@
-// test/auth.test.js
-
-const request = require("supertest");
-const express = require("express");
+import request from "supertest";
+import express from "express";
 
 // Mock authentication middleware
 const isLoggedIn = (req, res, next) => {

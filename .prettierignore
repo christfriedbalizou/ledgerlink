@@ -1,0 +1,22 @@
+# Ignore files not supported by Prettier
+README.md
+.env
+.env.example
+LICENSE
+.gitignore
+prisma/ledgerlink.db
+prisma/schema.prisma
+prisma/schema.template.prisma
+package-lock.json
+renovate.json
+.github/autoMerge.json5
+.github/labels.json5
+.github/labels.yaml
+.github/release-drafter.yaml
+.github/renovate.json5
+.github/semanticCommits.json5
+.github/workflows/ci.yml
+.github/workflows/meta-labeler.yml
+.github/workflows/meta-sync-labels.yml
+.github/workflows/release-drafter.yml
+.github/workflows/release.yml

@@ -1,5 +1,3 @@
-// scripts/generate-schema.js
-
 import { readFileSync, writeFileSync } from "fs";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
@@ -10,7 +8,6 @@ const __dirname = dirname(__filename);
 const provider = process.env.DATABASE_PROVIDER || "sqlite";
 let url = process.env.DATABASE_URL;
 if (!url) {
-  // Default to root directory ledgerlink.db for sqlite
   url = `file:./ledgerlink.db`;
 }
 
