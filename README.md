@@ -1,10 +1,8 @@
 # 🔗 LedgerLink: The Self-Hosted Financial Data Router
 
 [![Test Status](https://img.shields.io/github/actions/workflow/status/christfriedbalizou/ledgerlink/ci.yml?branch=main&label=Tests&logo=github&style=for-the-badge)](https://github.com/christfriedbalizou/ledgerlink/actions/workflows/ci.yml)
-[![Coverage](https://img.shields.io/codecov/c/github/christfriedbalizou/ledgerlink?logo=codecov&style=for-the-badge)](https://app.codecov.io/gh/christfriedbalizou/ledgerlink)
 [![Dependencies](https://img.shields.io/github/actions/workflow/status/christfriedbalizou/ledgerlink/ci.yml?label=Security%20Audit&logo=npm&style=for-the-badge)](https://github.com/christfriedbalizou/ledgerlink/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/christfriedbalizou/ledgerlink?include_prereleases&label=Release&logo=github&style=for-the-badge)](https://github.com/christfriedbalizou/ledgerlink/releases)
-[![LedgerLink Status](https://img.shields.io/badge/Status-In%20Development-blue.svg?style=for-the-badge&logo=vercel)](https://github.com/your-repo-link)
 
 LedgerLink is a self-hosted, open-source application designed to bridge the gap between your live bank accounts and your preferred financial management tools or personal data archives. Securely connect to your financial institutions via Plaid, and let LedgerLink automatically deliver your transaction and balance data exactly where you need it – whether that's your self-hosted Actual Budget instance or directly to your inbox as a CSV.
 
