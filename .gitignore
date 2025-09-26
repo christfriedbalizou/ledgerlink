@@ -143,3 +143,6 @@ vite.config.ts.timestamp-*
 
 # Ignore generated Prisma schema
 prisma/schema.prisma
+
+# Ignore AI assistant instructions file if you prefer it not to trigger changes
+.github/copilot-instructions.md
