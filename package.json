@@ -8,7 +8,7 @@
     "dev": "npm run db:migrate && nodemon server.js",
     "test": "npm run db:seed && node --experimental-vm-modules node_modules/.bin/jest --runInBand",
     "db:generate": "node scripts/generate-schema.js && prisma generate",
-    "db:migrate": "node scripts/generate-schema.js && prisma migrate deploy",
+    "db:migrate": "node scripts/generate-schema.js && prisma migrate deploy && prisma generate",
     "db:seed": "npm run db:migrate && node src/db/seed.js"
   },
   "keywords": [
