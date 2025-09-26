@@ -14,7 +14,7 @@ class Account {
   }
 
   static async removeById(userId, accountId) {
-    return prisma.account.deleteMany({ where: { id: accountId, userId } });
+    return prisma.account.delete({ where: { id: accountId, userId } });
   }
 
   static async findByPlaidItemId(plaidItemId) {
