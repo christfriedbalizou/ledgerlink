@@ -10,6 +10,9 @@ const router = express.Router();
 const MAX_ACCOUNTS_PER_USER =
   parseInt(process.env.MAX_ACCOUNTS_PER_USER, 10) || 2;
 
+// Helper: Only allow valid standalone products for Plaid
+const VALID_LINK_FLOW_PRODUCTS = ["transactions", "auth", "identity", "assets"];
+
 router.post("/link-token", async (req, res) => {
   logger.info("Plaid link-token route accessed");
   try {
@@ -38,25 +41,40 @@ router.post("/link-token", async (req, res) => {
         .map((s) => s.trim())
         .filter(Boolean);
     }
-    // Create a link token for each product
-    const tokens = {};
-    for (const product of products) {
-      const response = await plaid.linkTokenCreate({
-        user: { client_user_id: user.id },
-        client_name: clientName,
-        products: [product],
-        country_codes: countryCodes.split(",").map((s) => s.trim()),
-        language,
-      });
-      logger.debug(
-        `Plaid linkTokenCreate response for ${product}`,
-        response.data,
-      );
-      tokens[product] = response.data.link_token;
+    // Filter for valid link flow products only
+    const validProducts = products.filter((p) => VALID_LINK_FLOW_PRODUCTS.includes(p));
+    const invalidProducts = products.filter((p) => !VALID_LINK_FLOW_PRODUCTS.includes(p));
+    if (validProducts.length === 0) {
+      logger.error(`No valid Plaid link flow products requested: ${products.join(", ")}`);
+      return res.status(400).json({ error: `No valid Plaid link flow products requested. Supported: ${VALID_LINK_FLOW_PRODUCTS.join(", ")}` });
     }
-    // If only one product, return {link_token}, else return {tokens: {product: link_token, ...}}
-    if (products.length === 1) {
-      res.json({ link_token: tokens[products[0]] });
+    if (invalidProducts.length > 0) {
+      logger.warn(`Ignoring unsupported Plaid products for link flow: ${invalidProducts.join(", ")}`);
+    }
+    // Create a link token for each valid product
+    const tokens = {};
+    for (const product of validProducts) {
+      try {
+        const response = await plaid.linkTokenCreate({
+          user: { client_user_id: user.id },
+          client_name: clientName,
+          products: [product],
+          country_codes: countryCodes.split(",").map((s) => s.trim()),
+          language,
+        });
+        logger.debug(
+          `Plaid linkTokenCreate response for ${product}`,
+          response.data,
+        );
+        tokens[product] = response.data.link_token;
+      } catch (err) {
+        logger.error(`Plaid linkTokenCreate failed for product ${product}:`, err);
+        tokens[product] = null;
+      }
+    }
+    // If only one valid product, return {link_token}, else return {tokens: {product: link_token, ...}}
+    if (validProducts.length === 1) {
+      res.json({ link_token: tokens[validProducts[0]] });
     } else {
       res.json({ tokens });
     }

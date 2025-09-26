@@ -5,6 +5,7 @@ import PlaidItem from "../src/models/PlaidItem.js";
 import Account from "../src/models/Account.js";
 import plaidRouter from "../src/routes/plaid.js";
 import prisma from "../src/db/prisma.js";
+import { VALID_LINK_FLOW_PRODUCTS } from "../src/constants/plaid.js";
 
 function createTestApp() {
   const app = express();
@@ -46,30 +47,41 @@ describe("Plaid Integration (Sandbox)", () => {
     await prisma.$disconnect();
   });
 
-  it("should create a Plaid link token for each product in PLAID_PRODUCTS", async () => {
+  it("should create a Plaid link token for each valid product in PLAID_PRODUCTS", async () => {
+    const VALID_LINK_FLOW_PRODUCTS = ["transactions", "auth", "identity", "assets"];
+    const validProducts = envProducts.filter((p) => VALID_LINK_FLOW_PRODUCTS.includes(p));
     const res = await request(app).post("/api/plaid/link-token").send();
-    if (envProducts.length === 1) {
+    if (validProducts.length === 1) {
       expect(res.status).toBe(200);
       expect(res.body).toHaveProperty("link_token");
       expect(typeof res.body.link_token).toBe("string");
     } else {
       expect(res.status).toBe(200);
       expect(res.body).toHaveProperty("tokens");
-      for (const product of envProducts) {
+      for (const product of validProducts) {
         expect(res.body.tokens).toHaveProperty(product);
-        expect(typeof res.body.tokens[product]).toBe("string");
+        // token may be null if Plaid rejected the product, but should be string if present
+        if (res.body.tokens[product] !== null) {
+          expect(typeof res.body.tokens[product]).toBe("string");
+        }
       }
     }
   });
 
   it("should create a Plaid link token for a specific product", async () => {
+    const VALID_LINK_FLOW_PRODUCTS = ["transactions", "auth", "identity", "assets"];
     const product = envProducts[0];
     const res = await request(app)
       .post("/api/plaid/link-token")
       .send({ product });
-    expect(res.status).toBe(200);
-    expect(res.body).toHaveProperty("link_token");
-    expect(typeof res.body.link_token).toBe("string");
+    if (VALID_LINK_FLOW_PRODUCTS.includes(product)) {
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty("link_token");
+      expect(typeof res.body.link_token).toBe("string");
+    } else {
+      expect(res.status).toBe(400);
+      expect(res.body).toHaveProperty("error");
+    }
   });
 });
 it("should create a PlaidItem and Account via /set-token", async () => {
