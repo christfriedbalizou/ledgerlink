@@ -1,7 +1,9 @@
 import "dotenv/config";
-import passport from "passport";
 import { Issuer, Strategy } from "openid-client";
+import passport from "passport";
+
 import User from "../models/User.js";
+import { logger } from "../utils/logger.js";
 
 async function configurePassport() {
   const client_id = process.env.OIDC_CLIENT_ID;
@@ -9,12 +11,7 @@ async function configurePassport() {
   const issuer_url = process.env.OIDC_ISSUER_URL;
   const redirect_uri = process.env.OIDC_CALLBACK_URL;
 
-  if (!issuer_url || !client_id || !client_secret || !redirect_uri) {
-    console.warn(
-      "[Passport] Missing one or more OIDC configuration environment variables. Authentication will not work correctly.",
-    );
-    return;
-  }
+  if (!issuer_url || !client_id || !client_secret || !redirect_uri) return;
 
   try {
     const issuer = await Issuer.discover(issuer_url);
@@ -37,9 +34,7 @@ async function configurePassport() {
               email,
               is_admin: isAdmin,
             });
-            console.log(
-              `[Passport] New user created: ${user.email}. Is Admin: ${isAdmin}`,
-            );
+            logger.info(`[Passport] New user: ${user.email} (admin=${isAdmin})`);
           }
           return done(null, user);
         } catch (error) {
@@ -59,9 +54,9 @@ async function configurePassport() {
         done(error);
       }
     });
-    console.log("[Passport] OpenID Connect strategy configured successfully.");
+    logger.info("[Passport] OIDC strategy configured");
   } catch (error) {
-    console.error("[Passport] Failed to discover OpenID Issuer:", error);
+    logger.error("[Passport] Failed to discover OpenID Issuer:", error);
     process.exit(1);
   }
 }

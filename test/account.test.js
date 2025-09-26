@@ -1,7 +1,7 @@
-import Account from "../src/models/Account.js";
 import prisma from "../src/db/prisma.js";
+import Account from "../src/models/Account.js";
 
-describe("Account Model", () => {
+describe("Account Model (Institution + Per-Institution Limits)", () => {
   let user;
 
   beforeEach(async () => {
@@ -26,24 +26,59 @@ describe("Account Model", () => {
     expect(account.userId).toBe(user.id);
   });
 
-  it("should enforce account limit (default 2)", async () => {
-    await Account.createForUser(user.id, {
-      plaidItemId: "item-1",
-      institutionName: "Bank 1",
-      institutionId: "ins_1",
-    });
-    await Account.createForUser(user.id, {
-      plaidItemId: "item-2",
-      institutionName: "Bank 2",
-      institutionId: "ins_2",
-    });
+  it("should enforce per-institution account limit (default 1)", async () => {
+    await Account.createForUser(
+      user.id,
+      {
+        plaidItemId: "item-1",
+        institutionName: "Bank 1",
+        institutionId: "ins_1",
+      },
+      { maxAccountsPerInstitution: 1 },
+    );
     await expect(
-      Account.createForUser(user.id, {
-        plaidItemId: "item-3",
-        institutionName: "Bank 3",
-        institutionId: "ins_3",
-      }),
-    ).rejects.toThrow(/Account limit/);
+      Account.createForUser(
+        user.id,
+        {
+          plaidItemId: "item-1-second",
+          institutionName: "Bank 1 Second",
+          institutionId: "ins_1",
+        },
+        { maxAccountsPerInstitution: 1 },
+      ),
+    ).rejects.toThrow(/Account per institution limit/);
+  });
+
+  it("should enforce institution limit (default 2)", async () => {
+    await Account.createForUser(
+      user.id,
+      {
+        plaidItemId: "item-1",
+        institutionName: "Bank 1",
+        institutionId: "ins_1",
+      },
+      { maxInstitutionsPerUser: 2 },
+    );
+    await Account.createForUser(
+      user.id,
+      {
+        plaidItemId: "item-2",
+        institutionName: "Bank 2",
+        institutionId: "ins_2",
+      },
+      { maxInstitutionsPerUser: 2 },
+    );
+    await expect(
+      Account.createForUser(
+        user.id,
+        {
+          plaidItemId: "item-3",
+          institutionName: "Bank 3",
+          institutionId: "ins_3",
+        },
+        { maxInstitutionsPerUser: 2 },
+      ),
+    ).rejects.toThrow(/Institution limit/);
   });
 
   it("should remove an account by id", async () => {

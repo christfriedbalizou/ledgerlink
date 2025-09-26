@@ -1,4 +1,4 @@
-// prisma/schema.template.prisma
+// prisma/schema.template.prisma (updated with Institution model)
 
 // Set up the Prisma client generator.
 generator client {
@@ -9,39 +9,51 @@ generator client {
 // Data Models
 // ----------------------------------------------------
 
-// User model: stores user information and their authentication data.
-// The is_admin field is crucial for your Oct 4 task.
-
 model User {
-  id        String    @id @default(uuid())
-  email     String    @unique
-  is_admin  Boolean   @default(false)
-  accounts  Account[]
-  plaidItems PlaidItem[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id           String        @id @default(uuid())
+  email        String        @unique
+  is_admin     Boolean       @default(false)
+  accounts     Account[]
+  plaidItems   PlaidItem[]
+  institutions Institution[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model Institution {
+  id                 String      @id @default(uuid())
+  userId             String
+  plaidInstitutionId String
+  name               String
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+  user               User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accounts           Account[]
+  plaidItems         PlaidItem[]
+
+  @@unique([userId, plaidInstitutionId])
 }
 
 model Account {
-  id                String   @id @default(uuid())
-  userId            String
-  plaidItemId       String   @unique
-  institutionName   String
-  institutionId     String
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           String       @id @default(uuid())
+  userId       String
+  plaidItemId  String       @unique
+  institutionId String
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  institution  Institution  @relation(fields: [institutionId], references: [id], onDelete: Cascade)
 }
 
 model PlaidItem {
-  id                String   @id @default(uuid())
-  userId            String
-  plaidItemId       String   @unique
-  plaidAccessToken  String   // Encrypted
-  products          String   // Comma-separated list of products
-  institutionName   String
-  institutionId     String
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id               String       @id @default(uuid())
+  userId           String
+  plaidItemId      String       @unique
+  plaidAccessToken String       // Encrypted
+  products         String       // Comma-separated list of products
+  institutionId    String
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  user             User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  institution      Institution  @relation(fields: [institutionId], references: [id], onDelete: Cascade)
 }

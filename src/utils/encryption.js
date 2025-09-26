@@ -6,7 +6,7 @@ const ALGORITHM = "aes-256-cbc";
 
 if (!ENCRYPTION_KEY || ENCRYPTION_KEY.length !== 32) {
   console.warn(
-    'WARNING: PLAID_ENCRYPTION_KEY is not set or is not 32 bytes long. Generate one using: crypto.randomBytes(32).toString("hex")',
+    'PLAID_ENCRYPTION_KEY missing or invalid (needs 32 bytes). Generate with: crypto.randomBytes(32).toString("hex")',
   );
   process.exit(1);
 }

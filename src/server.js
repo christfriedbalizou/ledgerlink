@@ -1,9 +1,12 @@
 import "dotenv/config";
 import express from "express";
 import session from "express-session";
+
 import { configurePassport, passport } from "./config/passport.js";
-import authRoutes from "./routes/auth.js";
 import { isLoggedIn } from "./middleware/auth.js";
+import authRoutes from "./routes/auth.js";
+import plaidRouter from "./routes/plaid.js";
+import { logger } from "./utils/logger.js";
 
 const app = express();
 const PORT = process.env.APP_PORT || 3000;
@@ -28,6 +31,7 @@ app.get("/", (req, res) => {
             <a href="/profile">View Your Profile (Protected)</a>`);
 });
 app.use("/auth", authRoutes);
+app.use("/api/plaid", isLoggedIn, plaidRouter);
 app.get("/dashboard", isLoggedIn, (req, res) => {
   res.send(`<h1>Dashboard</h1>
             <p>Welcome to the protected dashboard, ${req.user.email}!</p>`);
@@ -36,8 +40,8 @@ app.get("/dashboard", isLoggedIn, (req, res) => {
 async function startServer() {
   await configurePassport();
   app.listen(PORT, () => {
-    console.log(`[Server] App is running in ${NODE_ENV} mode on port ${PORT}`);
-    console.log(`[Server] Access it at http://localhost:${PORT}`);
+    logger.info(`[Server] App is running in ${NODE_ENV} mode on port ${PORT}`);
+    logger.info(`[Server] Access it at http://localhost:${PORT}`);
   });
 }
 

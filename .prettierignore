@@ -20,3 +20,6 @@ renovate.json
 .github/workflows/meta-sync-labels.yml
 .github/workflows/release-drafter.yml
 .github/workflows/release.yml
+node_modules
+coverage
+.prisma

@@ -2,6 +2,8 @@ import { readFileSync, writeFileSync } from "fs";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 
+import { logger } from "../src/utils/logger.js";
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -28,4 +30,4 @@ const outputPath = join(__dirname, "../prisma/schema.prisma");
 const template = readFileSync(templatePath, "utf-8");
 const output = schema + template;
 writeFileSync(outputPath, output);
-console.log(`Generated schema.prisma with provider: ${provider}`);
+logger.info(`Generated schema.prisma with provider: ${provider}`);

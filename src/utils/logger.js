@@ -11,10 +11,16 @@ function shouldLog(level) {
 }
 
 function log(level, ...args) {
-  if (shouldLog(level)) {
-    const ts = new Date().toISOString();
-    // Format: [LEVEL] [timestamp] message
-    console.log(`[${level.toUpperCase()}] [${ts}]`, util.format(...args));
+  if (!shouldLog(level)) return;
+  const ts = new Date().toISOString();
+  const prefix = `[${level.toUpperCase()}] [${ts}]`;
+  if (level === "error") {
+    console.error(prefix, util.format(...args));
+  } else if (level === "warn") {
+    console.warn(prefix, util.format(...args));
+  } else {
+    // For info/debug reuse console.warn channel (still visible but downgraded by prefix)
+    console.warn(prefix, util.format(...args));
   }
 }
 

@@ -24,13 +24,35 @@ class User {
     return adminCount > 0;
   }
 
-  static async accountCount(userId) {
-    return prisma.account.count({ where: { userId } });
+  static async institutionCount(userId) {
+    try {
+      return await prisma.institution.count({ where: { userId } });
+    } catch {
+      const result = await prisma.account.findMany({
+        where: { userId },
+        select: { institutionId: true },
+        distinct: ["institutionId"],
+      });
+      return result.length;
+    }
   }
 
-  static async canAddAccount(userId, maxAccounts = 2) {
-    const count = await this.accountCount(userId);
-    return count < maxAccounts;
+  static async accountCountForInstitution(userId, institutionId) {
+    return prisma.account.count({ where: { userId, institutionId } });
+  }
+
+  static async canAddInstitution(userId, maxInstitutions = 2) {
+    const count = await this.institutionCount(userId);
+    return count < maxInstitutions;
+  }
+
+  static async canAddAccountToInstitution(
+    userId,
+    institutionId,
+    maxAccountsPerInstitution = 1,
+  ) {
+    const count = await this.accountCountForInstitution(userId, institutionId);
+    return count < maxAccountsPerInstitution;
   }
 }
 

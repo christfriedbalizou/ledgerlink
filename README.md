@@ -1,6 +1,8 @@
 # 🔗 LedgerLink: The Self-Hosted Financial Data Router
 
 [![Test Status](https://img.shields.io/github/actions/workflow/status/christfriedbalizou/ledgerlink/ci.yml?branch=main&label=Tests&logo=github&style=for-the-badge)](https://github.com/christfriedbalizou/ledgerlink/actions/workflows/ci.yml)
+[![Coverage](https://img.shields.io/codecov/c/github/christfriedbalizou/ledgerlink?logo=codecov&style=for-the-badge)](https://app.codecov.io/gh/christfriedbalizou/ledgerlink)
+[![Dependencies](https://img.shields.io/github/actions/workflow/status/christfriedbalizou/ledgerlink/ci.yml?label=Security%20Audit&logo=npm&style=for-the-badge)](https://github.com/christfriedbalizou/ledgerlink/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/christfriedbalizou/ledgerlink?include_prereleases&label=Release&logo=github&style=for-the-badge)](https://github.com/christfriedbalizou/ledgerlink/releases)
 [![LedgerLink Status](https://img.shields.io/badge/Status-In%20Development-blue.svg?style=for-the-badge&logo=vercel)](https://github.com/your-repo-link)
 
@@ -46,3 +48,28 @@ LedgerLink allows you to choose exactly where your scheduled financial data goes
 * **Rate Limit Protection:** Features logic to detect and avoid exceeding Plaid's API usage limits, preventing service disruption.
 
 ---
+
+### Institution & Account Limits
+
+LedgerLink enforces two layers of limits for Plaid-linked data sources:
+
+1. `MAX_INSTITUTIONS_PER_USER` – Maximum distinct financial institutions a user can connect (default: 2)
+2. `MAX_ACCOUNTS_PER_INSTITUTION` – Maximum accounts allowed per institution for a user (default: 1)
+
+These are configurable via environment variables. The legacy `MAX_ACCOUNTS_PER_USER` has been deprecated in favor of more granular control.
+
+The underlying data model now includes an `Institution` table which normalizes institutions separate from accounts and Plaid items. A migration (`add_institution_table`) introduces this table.
+
+When a Plaid public token is exchanged, LedgerLink:
+* Ensures the institution exists or creates it (respecting the institution limit)
+* Ensures the per‑institution account limit is not exceeded
+* Links the new account and Plaid item to the `Institution`
+
+Environment example:
+```
+MAX_INSTITUTIONS_PER_USER=2
+MAX_ACCOUNTS_PER_INSTITUTION=1
+```
+
+If these variables are unset, defaults are applied.
+

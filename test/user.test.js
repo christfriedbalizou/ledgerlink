@@ -1,7 +1,7 @@
-import request from "supertest";
 import express from "express";
-import User from "../src/models/User.js";
+
 import prisma from "../src/db/prisma.js";
+import User from "../src/models/User.js";
 
 // Mock Express app for authentication route testing
 const app = express();
