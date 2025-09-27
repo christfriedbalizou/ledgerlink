@@ -1,5 +1,6 @@
 import "dotenv/config";
-import { Issuer, Strategy } from "openid-client";
+import * as client from "openid-client";
+import { Strategy } from "openid-client/passport";
 import passport from "passport";
 
 import User from "../models/User.js";
@@ -14,15 +15,10 @@ async function configurePassport() {
   if (!issuer_url || !client_id || !client_secret || !redirect_uri) return;
 
   try {
-    const issuer = await Issuer.discover(issuer_url);
-    const client = new issuer.Client({
-      client_id,
-      client_secret,
-      redirect_uris: [redirect_uri],
-      response_types: ["code"],
-    });
+    // Use openid-client discovery to obtain a Configuration and instantiate the passport Strategy
+    const config = await client.discovery(new URL(issuer_url), client_id, client_secret);
     const oidcStrategy = new Strategy(
-      { client, passReqToCallback: true },
+      { config, passReqToCallback: true, callbackURL: redirect_uri },
       async (req, tokenSet, userinfo, done) => {
         try {
           const email = userinfo.email;

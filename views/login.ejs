@@ -1,0 +1,46 @@
+<%- include('partials/header', { user, currentPage: 'login' }) %>
+
+<main class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full space-y-8">
+    <div class="text-center">
+      <h2 class="mt-6 text-3xl font-bold text-gray-900">
+        Welcome to LedgerLink
+      </h2>
+      <p class="mt-2 text-sm text-gray-600">
+        Your self-hosted financial data router
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="space-y-6">
+        <div class="text-center">
+          <svg class="mx-auto h-12 w-12 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+          <h3 class="mt-2 text-lg font-medium text-gray-900">Secure Authentication</h3>
+          <p class="mt-1 text-sm text-gray-500">
+            Sign in with your OIDC provider to access your dashboard
+          </p>
+        </div>
+
+        <div>
+          <a href="/auth/login" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors">
+            <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+            </svg>
+            Sign In with OIDC
+          </a>
+        </div>
+
+        <div class="text-xs text-gray-500 text-center">
+          <p>Secured by OpenID Connect authentication</p>
+          <p class="mt-1">First user becomes administrator</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center text-xs text-gray-400">
+      <p>&copy; 2025 LedgerLink. Open source financial data routing.</p>
+    </div>
+  </div>
+</main>
