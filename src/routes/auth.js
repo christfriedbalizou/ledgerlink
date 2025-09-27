@@ -1,12 +1,16 @@
 import express from "express";
 
-// Defer importing passport until the route is mounted by server.js to avoid import-time side effects
 const router = express.Router();
+
+import crypto from 'crypto';
 
 router.get("/login", async (req, res, next) => {
   const mod = await import("../config/passport.js");
   const passport = mod.passport;
-  return passport.authenticate("oidc")(req, res, next);
+  // generate a strong random state and store it in session so the provider can echo it back
+  const state = crypto.randomBytes(16).toString('hex');
+  if (req.session) req.session.oidc_state = state;
+  return passport.authenticate("oidc", { state })(req, res, next);
 });
 
 router.get("/callback", async (req, res, next) => {
@@ -19,7 +23,6 @@ router.get("/callback", async (req, res, next) => {
 });
 
 router.get("/logout", (req, res, next) => {
-  // req.logout may be a stub if passport isn't configured; accept both signatures
   try {
     if (req.logout.length === 1) {
       // older signature: req.logout()
