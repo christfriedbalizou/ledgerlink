@@ -53,11 +53,9 @@ router.post("/link-token", async (req, res) => {
       logger.error(
         `No valid Plaid link flow products requested: ${products.join(", ")}`,
       );
-      return res
-        .status(400)
-        .json({
-          error: `No valid Plaid link flow products requested. Supported: ${VALID_LINK_FLOW_PRODUCTS.join(", ")}`,
-        });
+      return res.status(400).json({
+        error: `No valid Plaid link flow products requested. Supported: ${VALID_LINK_FLOW_PRODUCTS.join(", ")}`,
+      });
     }
     if (invalidProducts.length > 0) {
       logger.warn(

@@ -23,20 +23,20 @@ app.get("/auth/profile", isLoggedIn, (req, res) => {
 
 describe("Authentication Routes (Mocked)", () => {
   it("should redirect to login provider on /api/auth/login", async () => {
-  const res = await request(app).get("/auth/login");
+    const res = await request(app).get("/auth/login");
     expect(res.statusCode).toBe(302);
     expect(res.headers.location).toBe("http://mock-oauth-provider");
   });
 
   it("should redirect to login if not authenticated on /api/auth/profile", async () => {
-  const res = await request(app).get("/auth/profile");
+    const res = await request(app).get("/auth/profile");
     expect(res.statusCode).toBe(302);
-  expect(res.headers.location).toBe("/auth/login");
+    expect(res.headers.location).toBe("/auth/login");
   });
 
   it("should return profile if authenticated", async () => {
     const res = await request(app)
-  .get("/auth/profile")
+      .get("/auth/profile")
       .set("x-mock-authenticated", "1");
     expect(res.statusCode).toBe(200);
     expect(res.body).toEqual({ email: "mock@example.com", is_admin: false });

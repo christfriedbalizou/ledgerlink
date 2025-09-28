@@ -19,7 +19,6 @@ function log(level, ...args) {
   } else if (level === "warn") {
     console.warn(prefix, util.format(...args));
   } else {
-    // For info/debug reuse console.warn channel (still visible but downgraded by prefix)
     console.warn(prefix, util.format(...args));
   }
 }

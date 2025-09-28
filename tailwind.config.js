@@ -1,29 +1,54 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [
-    "./views/**/*.ejs",
-    "./public/**/*.html",
-    "./public/js/**/*.js",
-  ],
+  content: ["./views/**/*.ejs", "./public/**/*.html", "./public/js/**/*.js"],
   safelist: [
-    'bg-blue-600','hover:bg-blue-700','text-white','font-medium','py-2','px-4','rounded-lg','focus:outline-none','focus:ring-2','focus:ring-blue-500','focus:ring-offset-2','transition-colors',
-    'bg-gray-200','hover:bg-gray-300','text-gray-900','border','border-gray-200','p-6','rounded-md','border-gray-300','shadow-sm','w-full','block',
-    'inline-flex','items-center','px-2.5','py-0.5','rounded-full','text-xs','bg-green-100','text-green-800','bg-red-100','text-red-800','bg-yellow-100','text-yellow-800'
+    "bg-blue-600",
+    "hover:bg-blue-700",
+    "text-white",
+    "font-medium",
+    "py-2",
+    "px-4",
+    "rounded-lg",
+    "focus:outline-none",
+    "focus:ring-2",
+    "focus:ring-blue-500",
+    "focus:ring-offset-2",
+    "transition-colors",
+    "bg-gray-200",
+    "hover:bg-gray-300",
+    "text-gray-900",
+    "border",
+    "border-gray-200",
+    "p-6",
+    "rounded-md",
+    "border-gray-300",
+    "shadow-sm",
+    "w-full",
+    "block",
+    "inline-flex",
+    "items-center",
+    "px-2.5",
+    "py-0.5",
+    "rounded-full",
+    "text-xs",
+    "bg-green-100",
+    "text-green-800",
+    "bg-red-100",
+    "text-red-800",
+    "bg-yellow-100",
+    "text-yellow-800",
   ],
   theme: {
     extend: {
       colors: {
         primary: {
-          50: '#eff6ff',
-          500: '#3b82f6',
-          600: '#2563eb',
-          700: '#1d4ed8',
-        }
-      }
+          50: "#eff6ff",
+          500: "#3b82f6",
+          600: "#2563eb",
+          700: "#1d4ed8",
+        },
+      },
     },
   },
-  plugins: [
-    require('@tailwindcss/forms'),
-    require('@tailwindcss/typography'),
-  ],
-}
+  plugins: [require("@tailwindcss/forms"), require("@tailwindcss/typography")],
+};

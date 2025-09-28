@@ -7,40 +7,40 @@ module.exports = {
   },
   parserOptions: {
     ecmaVersion: 2023,
-    sourceType: 'module',
+    sourceType: "module",
   },
   extends: [
-    'eslint:recommended',
-    'plugin:import/recommended',
-    'plugin:import/errors',
-    'plugin:import/warnings',
-    'prettier',
+    "eslint:recommended",
+    "plugin:import/recommended",
+    "plugin:import/errors",
+    "plugin:import/warnings",
+    "prettier",
   ],
-  plugins: ['import'],
+  plugins: ["import"],
   settings: {
-    'import/resolver': {
+    "import/resolver": {
       node: {
-        extensions: ['.js']
-      }
-    }
+        extensions: [".js"],
+      },
+    },
   },
   rules: {
-    'no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
-    'import/order': [
-      'warn',
+    "no-unused-vars": ["warn", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
+    "import/order": [
+      "warn",
       {
         groups: [
-          'builtin',
-          'external',
-          'internal',
-          'parent',
-          'sibling',
-          'index',
-          'object',
-          'type',
+          "builtin",
+          "external",
+          "internal",
+          "parent",
+          "sibling",
+          "index",
+          "object",
+          "type",
         ],
-        'newlines-between': 'always',
-        alphabetize: { order: 'asc', caseInsensitive: true },
+        "newlines-between": "always",
+        alphabetize: { order: "asc", caseInsensitive: true },
       },
     ],
   },

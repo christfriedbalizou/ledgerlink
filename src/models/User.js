@@ -24,6 +24,22 @@ class User {
     return adminCount > 0;
   }
 
+  static async findOrCreateByEmail(email) {
+    if (!email) return null;
+    const existing = await this.findByEmail(email);
+    if (existing) return existing;
+    const adminExists = await this.adminExists();
+    const isAdmin = !adminExists;
+    try {
+      return await prisma.user.create({ data: { email, is_admin: isAdmin } });
+    } catch (err) {
+      if (err?.code === "P2002") {
+        return await this.findByEmail(email);
+      }
+      throw err;
+    }
+  }
+
   static async institutionCount(userId) {
     try {
       return await prisma.institution.count({ where: { userId } });

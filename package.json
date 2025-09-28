@@ -4,8 +4,8 @@
   "description": "Base project for OIDC/OAuth2 application setup.",
   "main": "server.js",
   "scripts": {
-  "start": "npm run db:migrate && node src/server.js",
-  "dev": "npm run db:migrate && nodemon src/server.js",
+    "start": "npm run db:migrate && node src/server.js",
+    "dev": "npm run db:migrate && nodemon src/server.js",
     "build:css": "postcss src/styles/input.css -o public/css/styles.css --watch",
     "build:css:prod": "postcss src/styles/utilities.css -o public/css/utilities.css --env production && postcss src/styles/input.css -o public/css/components.css --env production && cat public/css/utilities.css public/css/components.css > public/css/styles.css && rm public/css/components.css public/css/utilities.css",
     "build": "npm run build:css:prod",
@@ -33,9 +33,9 @@
     "dotenv": "^17.2.2",
     "ejs": "^3.1.10",
     "express": "^5.0.0",
+    "express-openid-connect": "^2.19.2",
     "express-session": "^1.18.2",
     "openid-client": "^6.8.0",
-    "passport": "^0.7.0",
     "plaid": "^38.1.0"
   },
   "devDependencies": {

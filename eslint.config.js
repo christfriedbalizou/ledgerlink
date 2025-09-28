@@ -73,4 +73,28 @@ export default [
       // security-node sample rule
     },
   },
+
+  // File-specific configs (flat-config style)
+  {
+    files: ["public/js/**"],
+    languageOptions: {
+      ecmaVersion: 2021,
+      globals: {
+        FormData: "readonly",
+        setTimeout: "readonly",
+        confirm: "readonly",
+        window: "readonly",
+        document: "readonly",
+        navigator: "readonly",
+        localStorage: "readonly",
+        sessionStorage: "readonly",
+        fetch: "readonly",
+      },
+    },
+    rules: { "no-console": "off" },
+  },
+  {
+    files: ["archive/**", "tmp_inspect_passport.mjs"],
+    rules: { "no-undef": "off", "no-unused-vars": "off", "no-console": "off" },
+  },
 ];
