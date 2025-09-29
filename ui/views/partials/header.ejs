@@ -25,9 +25,7 @@
           <div class="hidden sm:flex items-center text-sm text-gray-600 dark:text-gray-300 max-w-[200px] truncate" title="<%= (user.preferred_name || user.email) %>">
             <span class="truncate"><%= user.preferred_name || user.email %></span>
           </div>
-          <form action="/auth/logout" method="post">
-            <button type="submit" class="btn-secondary py-1 px-3 text-sm">Logout</button>
-          </form>
+          <a href="/auth/logout" class="btn-secondary py-1 px-3 text-sm">Logout</a>
         <% } else { %>
           <a href="/auth/login" class="btn-primary py-1 px-3 text-sm">Login</a>
         <% } %>
