@@ -1,10 +1,3 @@
-#!/usr/bin/env bash
-. "$(dirname -- "$0")/_/husky.sh"
+#!/usr/bin/env sh
 
-CHANGED_UI=$(git diff --cached --name-only | grep '^ui/' || true)
-if [ -n "$CHANGED_UI" ]; then
-	echo "Running lint-staged on UI changes..."
-	npx lint-staged --config package.json
-else
-	echo "No UI changes detected; skipping lint-staged."
-fi
+npx lint-staged --config package.json
