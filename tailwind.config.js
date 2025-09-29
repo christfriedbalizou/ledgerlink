@@ -49,15 +49,22 @@ module.exports = {
     'dark:border-gray-700',
     'dark:text-gray-300',
     'dark:hover:bg-gray-700',
+    'dark:hover:bg-gray-700/50',
+    'dark:bg-primary-700/30',
+    'dark:text-primary-200',
+    'dark:border-primary-400',
+    'dark:text-gray-400',
   ],
   theme: {
     extend: {
       colors: {
         primary: {
           50: "#eff6ff",
+          200: "#bfdbfe",
           500: "#3b82f6",
           600: "#2563eb",
           700: "#1d4ed8",
+          400: "#60a5fa",
         },
       },
     },
