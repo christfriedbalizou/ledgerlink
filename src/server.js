@@ -129,6 +129,37 @@ async function startServer() {
   app.use("/auth", authRoutes);
   app.use("/api/plaid", isLoggedIn, plaidRouter);
 
+  // Lightweight account/institution stats for dynamic dashboard refresh
+  app.get("/api/me/account-stats", isLoggedIn, async (req, res) => {
+    try {
+      const [accounts, institutions] = await Promise.all([
+        prisma.account.count({ where: { userId: req.user.id } }),
+        prisma.institution.count({ where: { userId: req.user.id } }),
+      ]);
+      res.json({ accounts, institutions });
+    } catch (e) {
+      logger.error("/api/me/account-stats error", e);
+      res.status(500).json({ error: "Failed to load stats" });
+    }
+  });
+
+  // Plaid Link event tracking endpoint (best-effort logging)
+  app.post("/api/plaid/event", isLoggedIn, (req, res) => {
+    try {
+      const { eventName, metadata } = req.body || {};
+      if (!eventName) return res.status(400).json({ error: "Missing eventName" });
+      logger.info(
+        `[PlaidEvent] user=${req.user.id} event=${eventName} meta=${JSON.stringify(
+          metadata || {},
+        )}`,
+      );
+      res.json({ ok: true });
+    } catch (e) {
+      logger.warn("Plaid event logging failed", e);
+      res.json({ ok: false });
+    }
+  });
+
   app.get("/", (req, res) => {
     if (req.oidc?.isAuthenticated()) return res.redirect("/dashboard");
     res.render("login", { title: "Login - LedgerLink", user: null, currentPage: 'login' });
@@ -136,7 +167,11 @@ async function startServer() {
 
   app.get("/dashboard", isLoggedIn, async (req, res) => {
     try {
-      const accounts = [];
+      const accounts = await prisma.account.findMany({
+        where: { userId: req.user.id },
+        include: { institution: true },
+        orderBy: { createdAt: 'desc' },
+      });
       res.render("dashboard", {
         title: "Dashboard - LedgerLink",
         user: req.user,
@@ -159,7 +194,7 @@ async function startServer() {
     res.render("settings", { title: "Settings - LedgerLink", user: req.user, currentPage: 'settings' });
   });
 
-  app.get("/admin", isLoggedIn, (req, res) => {
+  app.get("/admin", isLoggedIn, async (req, res) => {
     if (!req.user?.is_admin) {
       return res.status(403).render("error", {
         title: "Access Denied - LedgerLink",
@@ -169,16 +204,33 @@ async function startServer() {
         details: "You must be an administrator to access this page.",
       });
     }
-    res.render("admin/global-settings", {
-      title: "Admin Settings - LedgerLink",
-      user: req.user,
-      currentPage: 'admin',
-      totalUsers: 0,
-      totalInstitutions: 0,
-      totalAccounts: 0,
-      maxInstitutionsPerUser: process.env.MAX_INSTITUTIONS_PER_USER || 2,
-      maxAccountsPerInstitution: process.env.MAX_ACCOUNTS_PER_INSTITUTION || 1,
-    });
+    try {
+      const [totalUsers, totalInstitutions, totalAccounts] = await Promise.all([
+        prisma.user.count(),
+        prisma.institution.count(),
+        prisma.account.count(),
+      ]);
+      // Placeholder sync status logic (can be replaced with real status)
+      const syncStatus = "Operational";
+      res.render("admin/stats", {
+        title: "Admin Statistics - LedgerLink",
+        user: req.user,
+        currentPage: 'admin',
+        totalUsers,
+        totalInstitutions,
+        totalAccounts,
+        syncStatus,
+      });
+    } catch (e) {
+      logger.error("Admin stats error:", e);
+      res.status(500).render("error", {
+        title: "Error - LedgerLink",
+        user: req.user,
+        status: 500,
+        message: "Internal Server Error",
+        details: "Unable to load admin statistics",
+      });
+    }
   });
 
   app.use((req, res) => {

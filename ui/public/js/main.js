@@ -113,8 +113,148 @@ function showNotification(message, type = "info") {
   }, 5000);
 }
 
-function linkNewAccount() {
-  showNotification("Plaid Link integration coming soon!", "info");
+let plaidLinkHandler = null;
+let plaidScriptLoading = null;
+
+function setLinkButtonState(loading) {
+  const buttons = [
+    document.getElementById("link-account-btn"),
+    document.getElementById("link-account-btn-empty"),
+  ].filter(Boolean);
+  buttons.forEach((btn) => {
+    const spinner = btn.querySelector(".spinner");
+    const label = btn.querySelector(".btn-label");
+    if (loading) {
+      btn.disabled = true;
+      btn.classList.add("opacity-70", "cursor-not-allowed");
+      if (spinner) spinner.classList.remove("hidden");
+      if (label) label.textContent = "Loading...";
+    } else {
+      btn.disabled = false;
+      btn.classList.remove("opacity-70", "cursor-not-allowed");
+      if (spinner) spinner.classList.add("hidden");
+      if (label)
+        label.textContent =
+          btn.id === "link-account-btn-empty"
+            ? "Connect Your First Account"
+            : "Link New Account";
+    }
+  });
+}
+
+async function fetchAccountStats() {
+  try {
+    const resp = await fetch("/api/me/account-stats");
+    if (!resp.ok) return;
+    const data = await resp.json();
+    // Find the dt with text "Connected Accounts" then its nextElementSibling (dd)
+    const dts = document.querySelectorAll("dl dt.text-sm.font-medium");
+    for (const dt of dts) {
+      if (
+        dt.textContent.trim() === "Connected Accounts" &&
+        dt.nextElementSibling &&
+        dt.nextElementSibling.tagName === "DD"
+      ) {
+        dt.nextElementSibling.textContent = data.accounts;
+        break;
+      }
+    }
+  } catch (e) {
+    console.warn("Failed to refresh account stats", e);
+  }
+}
+
+function loadPlaidScript() {
+  if (window.Plaid) return Promise.resolve();
+  if (plaidScriptLoading) return plaidScriptLoading;
+  plaidScriptLoading = new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = "https://cdn.plaid.com/link/v2/stable/link-initialize.js";
+    script.async = true;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error("Failed to load Plaid script"));
+    document.head.appendChild(script);
+  });
+  return plaidScriptLoading;
+}
+
+async function linkNewAccount() {
+  try {
+    showNotification("Preparing Plaid Link...", "info");
+    setLinkButtonState(true);
+    await loadPlaidScript();
+    const productSelect = document.getElementById("plaid-product");
+    const product = productSelect ? productSelect.value : undefined;
+    const url =
+      "/api/plaid/link-token" +
+      (product ? `?product=${encodeURIComponent(product)}` : "");
+    const tokenResp = await fetch(url, { method: "POST" });
+    if (!tokenResp.ok) throw new Error("Failed to create link token");
+    const tokenData = await tokenResp.json();
+    const linkToken = tokenData.link_token || tokenData.linkToken || null;
+    if (!linkToken) throw new Error("link_token missing in response");
+
+    // Reinitialize handler each time to ensure fresh token lifecycle
+    plaidLinkHandler = window.Plaid.create({
+      token: linkToken,
+      onSuccess: async (public_token, metadata) => {
+        try {
+          showNotification("Link success. Finalizing...", "info");
+          const institutionName = metadata.institution?.name || "Unknown";
+          const plaidInstitutionId = metadata.institution?.institution_id || null;
+          const product =
+            (metadata?.products && metadata.products[0]) || "transactions";
+          const resp = await fetch("/api/plaid/set-token", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              public_token,
+              institutionName,
+              plaidInstitutionId,
+              product,
+            }),
+          });
+          if (!resp.ok) {
+            const errJson = await resp.json().catch(() => ({}));
+            throw new Error(errJson.error || "Failed to persist linked item");
+          }
+          showNotification("Account linked successfully!", "success");
+          await fetchAccountStats();
+          setTimeout(() => window.location.reload(), 1200); // fallback full reload for now
+        } catch (e) {
+          showNotification("Post-link error: " + e.message, "error");
+        }
+      },
+      onExit: (err, metadata) => {
+        if (err) {
+          console.warn("Plaid Link exit error", err, metadata);
+          showNotification(
+            "Link exited: " +
+              (err.display_message || err.error_message || err.error_code),
+            "warning",
+          );
+        } else {
+          showNotification("Link flow closed", "info");
+        }
+        setLinkButtonState(false);
+      },
+      onEvent: (eventName, metadata) => {
+        if (eventName === "ERROR") {
+          console.warn("Plaid Link event error", metadata);
+        }
+        fetch("/api/plaid/event", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ eventName, metadata }),
+        }).catch(() => {});
+      },
+    });
+
+    plaidLinkHandler.open();
+  } catch (e) {
+    showNotification("Unable to start Plaid Link: " + e.message, "error");
+    setLinkButtonState(false);
+  }
 }
 
 async function removeAccount(id) {

@@ -2,88 +2,114 @@
   <div class="max-w-4xl mx-auto">
     <div class="mb-8">
       <h1 class="text-2xl font-bold text-gray-900">Settings</h1>
-      <p class="mt-1 text-sm text-gray-600">Manage your account preferences and data export settings</p>
+      <p class="mt-1 text-sm text-gray-600">Manage your account preferences</p>
     </div>
-    <div class="card mb-8">
-      <h2 class="text-lg font-medium text-gray-900 mb-6">Profile Information</h2>
-      <form class="space-y-6">
-        <div>
-          <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-          <input type="email" id="email" name="email" value="<%= user.email %>" disabled class="mt-1 input-field bg-gray-50">
-          <p class="mt-2 text-sm text-gray-500">Email is managed by your OIDC provider</p>
-        </div>
-        <div>
-          <label for="timezone" class="block text-sm font-medium text-gray-700">Timezone</label>
-          <select id="timezone" name="timezone" class="mt-1 input-field">
-            <option value="UTC">UTC</option>
-            <option value="America/New_York">Eastern Time</option>
-            <option value="America/Chicago">Central Time</option>
-            <option value="America/Denver">Mountain Time</option>
-            <option value="America/Los_Angeles">Pacific Time</option>
-          </select>
-        </div>
-      </form>
-    </div>
-    <div class="card mb-8">
-      <h2 class="text-lg font-medium text-gray-900 mb-6">Data Export Preferences</h2>
-      <form class="space-y-6">
-        <div>
-          <label class="block text-sm font-medium text-gray-700">Export Destinations</label>
-          <div class="mt-2 space-y-3">
-            <div class="flex items-center">
-              <input id="export-email" name="export-destinations" type="checkbox" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
-              <label for="export-email" class="ml-3 text-sm text-gray-700">Email CSV exports</label>
-            </div>
-            <div class="flex items-center">
-              <input id="export-actual" name="export-destinations" type="checkbox" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
-              <label for="export-actual" class="ml-3 text-sm text-gray-700">Actual Budget integration</label>
+
+    <% if (user && user.is_admin) { %>
+      <!-- Full settings for administrators -->
+      <div class="card mb-8">
+        <h2 class="text-lg font-medium text-gray-900 mb-6">Profile Information</h2>
+        <form class="space-y-6">
+          <div>
+            <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+            <input type="email" id="email" name="email" value="<%= user.email %>" disabled class="mt-1 input-field bg-gray-50">
+            <p class="mt-2 text-sm text-gray-500">Email is managed by your OIDC provider</p>
+          </div>
+          <div>
+            <label for="timezone" class="block text-sm font-medium text-gray-700">Timezone</label>
+            <select id="timezone" name="timezone" class="mt-1 input-field">
+              <option value="UTC">UTC</option>
+              <option value="America/New_York">Eastern Time</option>
+              <option value="America/Chicago">Central Time</option>
+              <option value="America/Denver">Mountain Time</option>
+              <option value="America/Los_Angeles">Pacific Time</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="card mb-8">
+        <h2 class="text-lg font-medium text-gray-900 mb-6">Data Export Preferences</h2>
+        <form class="space-y-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Export Destinations</label>
+            <div class="mt-2 space-y-3">
+              <div class="flex items-center">
+                <input id="export-email" name="export-destinations" type="checkbox" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                <label for="export-email" class="ml-3 text-sm text-gray-700">Email CSV exports</label>
+              </div>
+              <div class="flex items-center">
+                <input id="export-actual" name="export-destinations" type="checkbox" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                <label for="export-actual" class="ml-3 text-sm text-gray-700">Actual Budget integration</label>
+              </div>
             </div>
           </div>
-        </div>
-        <div>
-          <label for="export-frequency" class="block text-sm font-medium text-gray-700">Export Frequency</label>
-          <select id="export-frequency" name="export-frequency" class="mt-1 input-field">
-            <option value="daily">Daily</option>
-            <option value="weekly">Weekly</option>
-            <option value="monthly">Monthly</option>
-          </select>
-        </div>
-        <div>
-          <label for="email-address" class="block text-sm font-medium text-gray-700">Export Email Address</label>
-          <input type="email" id="email-address" name="email-address" value="<%= user.email %>" class="mt-1 input-field">
-          <p class="mt-2 text-sm text-gray-500">CSV files will be sent to this address</p>
-        </div>
-      </form>
-    </div>
-    <div class="card mb-8">
-      <h2 class="text-lg font-medium text-gray-900 mb-6">Synchronization Settings</h2>
-      <form class="space-y-6">
-        <div>
-          <label for="sync-frequency" class="block text-sm font-medium text-gray-700">Sync Frequency</label>
-          <select id="sync-frequency" name="sync-frequency" class="mt-1 input-field">
-            <option value="hourly">Every hour</option>
-            <option value="daily">Daily</option>
-            <option value="weekly">Weekly</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700">Sync Options</label>
-          <div class="mt-2 space-y-3">
-            <div class="flex items-center">
-              <input id="sync-transactions" name="sync-options" type="checkbox" checked class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
-              <label for="sync-transactions" class="ml-3 text-sm text-gray-700">Sync transaction data</label>
-            </div>
-            <div class="flex items-center">
-              <input id="sync-balances" name="sync-options" type="checkbox" checked class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
-              <label for="sync-balances" class="ml-3 text-sm text-gray-700">Sync account balances</label>
+          <div>
+            <label for="export-frequency" class="block text-sm font-medium text-gray-700">Export Frequency</label>
+            <select id="export-frequency" name="export-frequency" class="mt-1 input-field">
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+            </select>
+          </div>
+          <div>
+            <label for="email-address" class="block text-sm font-medium text-gray-700">Export Email Address</label>
+            <input type="email" id="email-address" name="email-address" value="<%= user.email %>" class="mt-1 input-field">
+            <p class="mt-2 text-sm text-gray-500">CSV files will be sent to this address</p>
+          </div>
+        </form>
+      </div>
+      <div class="card mb-8">
+        <h2 class="text-lg font-medium text-gray-900 mb-6">Synchronization Settings</h2>
+        <form class="space-y-6">
+          <div>
+            <label for="sync-frequency" class="block text-sm font-medium text-gray-700">Sync Frequency</label>
+            <select id="sync-frequency" name="sync-frequency" class="mt-1 input-field">
+              <option value="hourly">Every hour</option>
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Sync Options</label>
+            <div class="mt-2 space-y-3">
+              <div class="flex items-center">
+                <input id="sync-transactions" name="sync-options" type="checkbox" checked class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                <label for="sync-transactions" class="ml-3 text-sm text-gray-700">Sync transaction data</label>
+              </div>
+              <div class="flex items-center">
+                <input id="sync-balances" name="sync-options" type="checkbox" checked class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                <label for="sync-balances" class="ml-3 text-sm text-gray-700">Sync account balances</label>
+              </div>
             </div>
           </div>
+        </form>
+      </div>
+      <div class="flex justify-between">
+        <button type="button" class="btn-secondary">Reset to Defaults</button>
+        <button type="submit" class="btn-primary">Save Settings</button>
+      </div>
+    <% } else { %>
+      <!-- Limited settings for non-admin users -->
+      <div class="card mb-8">
+        <h2 class="text-lg font-medium text-gray-900 mb-6">Profile</h2>
+        <div class="space-y-6">
+          <div>
+            <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+            <input type="email" id="email" value="<%= user.email %>" disabled class="mt-1 input-field bg-gray-50">
+            <p class="mt-2 text-sm text-gray-500">Managed by your identity provider</p>
+          </div>
+        </div>
+      </div>
+      <form id="settings-form" class="card mb-8 space-y-6">
+        <h2 class="text-lg font-medium text-gray-900">Integrations</h2>
+        <div class="flex items-center">
+          <input id="export-actual" name="export-actual" type="checkbox" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+          <label for="export-actual" class="ml-3 text-sm text-gray-700">Enable Actual Budget integration</label>
+        </div>
+        <div class="pt-2">
+          <button type="submit" class="btn-primary">Save Changes</button>
         </div>
       </form>
-    </div>
-    <div class="flex justify-between">
-      <button type="button" class="btn-secondary">Reset to Defaults</button>
-      <button type="submit" class="btn-primary">Save Settings</button>
-    </div>
+    <% } %>
   </div>
 </main>

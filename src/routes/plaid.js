@@ -63,6 +63,7 @@ router.post("/link-token", async (req, res) => {
       );
     }
     const tokens = {};
+    logger.debug(`Creating Plaid link tokens for products:`, user);
     for (const product of validProducts) {
       try {
         const response = await plaid.linkTokenCreate({

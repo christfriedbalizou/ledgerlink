@@ -20,15 +20,26 @@
             <% accounts.forEach(account => { %>
               <div class="card">
                 <div class="flex items-center justify-between">
-                  <div class="flex items-center">
+            <div class="mt-4 sm:mt-0 flex items-center space-x-3">
+              <select id="plaid-product" class="input-field w-40 text-sm">
+                <option value="transactions" selected>Transactions</option>
+                <option value="auth">Auth</option>
+                <option value="identity">Identity</option>
+                <option value="assets">Assets</option>
+              </select>
+              <button id="link-account-btn" type="button" class="btn-primary flex items-center space-x-2" onclick="linkNewAccount()">
+                <span class="btn-label">Link New Account</span>
+                <span class="spinner hidden h-4 w-4 border-2 border-white/70 border-t-transparent rounded-full animate-spin"></span>
+              </button>
+            </div>
                     <div class="flex-shrink-0">
                       <div class="h-10 w-10 bg-primary-100 rounded-full flex items-center justify-center">
                         <svg class="h-6 w-6 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
                       </div>
                     </div>
                     <div class="ml-4">
-                      <h3 class="text-sm font-medium text-gray-900">Bank Account</h3>
-                      <p class="text-sm text-gray-500">Item ID: <%= account.plaidItemId %></p>
+                          <h3 class="text-sm font-medium text-gray-900"><%= (account.institution && account.institution.name) ? account.institution.name : 'Bank Account' %></h3>
+                          <p class="text-sm text-gray-500">Item ID: <%= account.plaidItemId %></p>
                     </div>
                   </div>
                   <div class="flex items-center space-x-2">
@@ -61,7 +72,10 @@
     <div>
       <h2 class="text-lg font-medium text-gray-900">Recent Activity</h2>
       <div class="mt-6 card">
-        <div class="text-center py-8 text-gray-500">
+                                <button type="button" id="link-account-btn-empty" class="btn-primary flex items-center space-x-2" onclick="linkNewAccount()">
+                                  <span class="btn-label">Connect Your First Account</span>
+                                  <span class="spinner hidden h-4 w-4 border-2 border-white/70 border-t-transparent rounded-full animate-spin"></span>
+                                </button>
           <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
           <p class="mt-2">No recent activity</p>
         </div>
@@ -69,4 +83,3 @@
     </div>
   </div>
 </main>
-<script>function linkNewAccount(){alert('Link new account functionality will be implemented soon!');}</script>
