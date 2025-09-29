@@ -1,3 +1,9 @@
 #!/usr/bin/env sh
 
-npx lint-staged --config package.json
+CHANGED_UI=$(git diff --cached --name-only | grep '^ui/' || true)
+if [ -n "$CHANGED_UI" ]; then
+	echo "Running lint-staged on UI changes..."
+	npx lint-staged --config package.json
+else
+	echo "No UI changes detected; skipping lint-staged."
+fi
