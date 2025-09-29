@@ -1,13 +1,13 @@
 {
-  "name": "project-scaffolding",
+  "name": "ledgerlink",
   "version": "1.0.0",
-  "description": "Base project for OIDC/OAuth2 application setup.",
+  "description": "Effortless Financial Data Synchronization",
   "main": "server.js",
   "scripts": {
     "start": "npm run db:migrate && node src/server.js",
     "dev": "npm run db:migrate && nodemon src/server.js",
-  "build:css": "postcss ui/styles/input.css -o ui/public/css/styles.css --watch",
-  "build:css:prod": "postcss ui/styles/utilities.css -o ui/public/css/utilities.css --env production && postcss ui/styles/input.css -o ui/public/css/components.css --env production && cat ui/public/css/utilities.css ui/public/css/components.css > ui/public/css/styles.css && rm ui/public/css/components.css ui/public/css/utilities.css",
+    "build:css": "postcss ui/styles/input.css -o ui/public/css/styles.css --watch",
+    "build:css:prod": "postcss ui/styles/utilities.css -o ui/public/css/utilities.css --env production && postcss ui/styles/input.css -o ui/public/css/components.css --env production && cat ui/public/css/utilities.css ui/public/css/components.css > ui/public/css/styles.css && rm ui/public/css/components.css ui/public/css/utilities.css",
     "build": "npm run build:css:prod",
     "test": "npm run db:seed && node --experimental-vm-modules node_modules/.bin/jest --runInBand",
     "db:generate": "node scripts/generate-schema.js && prisma generate",
@@ -15,8 +15,8 @@
     "db:seed": "npm run db:migrate && node src/db/seed.js",
     "lint": "eslint . --ext .js",
     "lint:fix": "eslint . --ext .js --fix",
-  "lint:ui": "eslint ui --ext .js",
-  "lint:ui:fix": "eslint ui --ext .js --fix",
+    "lint:ui": "eslint ui --ext .js",
+    "lint:ui:fix": "eslint ui --ext .js --fix",
     "format": "prettier . --write",
     "format:check": "prettier . --check .",
     "prepare": "husky install"
