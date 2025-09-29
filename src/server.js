@@ -3,6 +3,7 @@ import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 
 import express from "express";
+import expressLayouts from "express-ejs-layouts";
 import { auth } from "express-openid-connect";
 import session from "express-session";
 
@@ -22,8 +23,10 @@ const PORT = process.env.APP_PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || "development";
 
 app.set("view engine", "ejs");
-app.set("views", join(__dirname, "../views"));
-app.use(express.static(join(__dirname, "../public")));
+app.set("views", join(__dirname, "../ui/views"));
+app.use(expressLayouts);
+app.set("layout", "partials/layout");
+app.use(express.static(join(__dirname, "../ui/public")));
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -73,10 +76,8 @@ async function startServer() {
           return next();
         }
 
-        // Try to obtain email from common sources without forcing network calls.
         let email = req.oidc?.user?.email || req.session?.user?.email || null;
 
-        // If we don't have an email yet, try fetching userinfo once as a fallback.
         if (!email) {
           try {
             if (req.oidc && typeof req.oidc.fetchUserInfo === "function") {
@@ -92,7 +93,6 @@ async function startServer() {
         }
 
         if (email) {
-          // Ensure a local user exists; findOrCreate handles race conditions.
           const user = await User.findOrCreateByEmail(email);
           req.user = user || null;
           res.locals.user = user || null;
@@ -131,7 +131,7 @@ async function startServer() {
 
   app.get("/", (req, res) => {
     if (req.oidc?.isAuthenticated()) return res.redirect("/dashboard");
-    res.render("login", { title: "Login - LedgerLink", user: null });
+    res.render("login", { title: "Login - LedgerLink", user: null, currentPage: 'login' });
   });
 
   app.get("/dashboard", isLoggedIn, async (req, res) => {
@@ -141,6 +141,7 @@ async function startServer() {
         title: "Dashboard - LedgerLink",
         user: req.user,
         accounts,
+        currentPage: 'dashboard'
       });
     } catch (error) {
       logger.error("Dashboard error:", error);
@@ -155,7 +156,7 @@ async function startServer() {
   });
 
   app.get("/settings", isLoggedIn, (req, res) => {
-    res.render("settings", { title: "Settings - LedgerLink", user: req.user });
+    res.render("settings", { title: "Settings - LedgerLink", user: req.user, currentPage: 'settings' });
   });
 
   app.get("/admin", isLoggedIn, (req, res) => {
@@ -171,6 +172,7 @@ async function startServer() {
     res.render("admin/global-settings", {
       title: "Admin Settings - LedgerLink",
       user: req.user,
+      currentPage: 'admin',
       totalUsers: 0,
       totalInstitutions: 0,
       totalAccounts: 0,
@@ -183,6 +185,7 @@ async function startServer() {
     res.status(404).render("error", {
       title: "Page Not Found - LedgerLink",
       user: req.user || null,
+      currentPage: null,
       status: 404,
       message: "Page Not Found",
       details: "The page you requested could not be found.",
@@ -194,6 +197,7 @@ async function startServer() {
     res.status(500).render("error", {
       title: "Error - LedgerLink",
       user: req.user || null,
+      currentPage: null,
       status: 500,
       message: "Internal Server Error",
       details:

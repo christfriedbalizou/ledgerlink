@@ -6,8 +6,8 @@
   "scripts": {
     "start": "npm run db:migrate && node src/server.js",
     "dev": "npm run db:migrate && nodemon src/server.js",
-    "build:css": "postcss src/styles/input.css -o public/css/styles.css --watch",
-    "build:css:prod": "postcss src/styles/utilities.css -o public/css/utilities.css --env production && postcss src/styles/input.css -o public/css/components.css --env production && cat public/css/utilities.css public/css/components.css > public/css/styles.css && rm public/css/components.css public/css/utilities.css",
+  "build:css": "postcss ui/styles/input.css -o ui/public/css/styles.css --watch",
+  "build:css:prod": "postcss ui/styles/utilities.css -o ui/public/css/utilities.css --env production && postcss ui/styles/input.css -o ui/public/css/components.css --env production && cat ui/public/css/utilities.css ui/public/css/components.css > ui/public/css/styles.css && rm ui/public/css/components.css ui/public/css/utilities.css",
     "build": "npm run build:css:prod",
     "test": "npm run db:seed && node --experimental-vm-modules node_modules/.bin/jest --runInBand",
     "db:generate": "node scripts/generate-schema.js && prisma generate",
@@ -15,6 +15,8 @@
     "db:seed": "npm run db:migrate && node src/db/seed.js",
     "lint": "eslint . --ext .js",
     "lint:fix": "eslint . --ext .js --fix",
+  "lint:ui": "eslint ui --ext .js",
+  "lint:ui:fix": "eslint ui --ext .js --fix",
     "format": "prettier . --write",
     "format:check": "prettier . --check .",
     "prepare": "husky install"
@@ -34,6 +36,7 @@
     "dotenv": "^17.2.2",
     "ejs": "^3.1.10",
     "express": "^5.0.0",
+    "express-ejs-layouts": "^2.5.1",
     "express-openid-connect": "^2.19.2",
     "express-session": "^1.18.2",
     "openid-client": "^6.8.0",
@@ -62,7 +65,7 @@
     "tailwindcss": "^3.3.3"
   },
   "lint-staged": {
-    "*.js": [
+    "ui/**/*.js": [
       "eslint --fix",
       "prettier --write"
     ]

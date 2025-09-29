@@ -76,7 +76,7 @@ export default [
 
   // File-specific configs (flat-config style)
   {
-    files: ["public/js/**"],
+    files: ["ui/public/js/**"],
     languageOptions: {
       ecmaVersion: 2021,
       globals: {

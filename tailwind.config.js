@@ -1,7 +1,9 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./views/**/*.ejs", "./public/**/*.html", "./public/js/**/*.js"],
+  darkMode: 'class', // Enable class strategy for dark mode
+  content: ["./ui/views/**/*.ejs", "./ui/public/**/*.html", "./ui/public/js/**/*.js"],
   safelist: [
+    // Buttons & layout
     "bg-blue-600",
     "hover:bg-blue-700",
     "text-white",
@@ -14,9 +16,11 @@ module.exports = {
     "focus:ring-blue-500",
     "focus:ring-offset-2",
     "transition-colors",
+    // Light backgrounds / text
     "bg-gray-200",
     "hover:bg-gray-300",
     "text-gray-900",
+    // Card & utilities
     "border",
     "border-gray-200",
     "p-6",
@@ -31,12 +35,20 @@ module.exports = {
     "py-0.5",
     "rounded-full",
     "text-xs",
+    // Status chips (light)
     "bg-green-100",
     "text-green-800",
     "bg-red-100",
     "text-red-800",
     "bg-yellow-100",
     "text-yellow-800",
+    // Dark mode variants that might be dynamically toggled
+    'dark:bg-gray-900',
+    'dark:text-gray-100',
+    'dark:bg-gray-800',
+    'dark:border-gray-700',
+    'dark:text-gray-300',
+    'dark:hover:bg-gray-700',
   ],
   theme: {
     extend: {
