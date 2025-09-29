@@ -66,7 +66,7 @@ app.use(
 
 async function startServer() {
   try {
-    app.use(auth(buildOidcConfig({ port: PORT })));
+    app.use(auth(buildOidcConfig({ baseUrl: process.env.BASE_URL })));
 
     app.use(async (req, res, next) => {
       try {
