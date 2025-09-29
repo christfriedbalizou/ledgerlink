@@ -13,6 +13,7 @@
     "db:generate": "node scripts/generate-schema.js && prisma generate",
     "db:migrate": "node scripts/generate-schema.js && prisma migrate deploy && prisma generate",
     "db:seed": "npm run db:migrate && node src/db/seed.js",
+    "lint": "eslint . --ext .js",
     "lint:fix": "eslint . --ext .js --fix",
     "format": "prettier . --write",
     "format:check": "prettier . --check .",

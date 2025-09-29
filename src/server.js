@@ -6,13 +6,13 @@ import express from "express";
 import { auth } from "express-openid-connect";
 import session from "express-session";
 
+import buildOidcConfig from "./config/oidc.js";
 import prisma from "./db/prisma.js";
 import { isLoggedIn } from "./middleware/auth.js";
 import User from "./models/User.js";
 import authRoutes from "./routes/auth.js";
 import plaidRouter from "./routes/plaid.js";
 import { logger } from "./utils/logger.js";
-import buildOidcConfig from "./config/oidc.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -63,7 +63,7 @@ app.use(
 
 async function startServer() {
   try {
-    app.use(auth(buildOidcConfig({ port: PORT, nodeEnv: NODE_ENV })));
+    app.use(auth(buildOidcConfig({ port: PORT })));
 
     app.use(async (req, res, next) => {
       try {
@@ -101,7 +101,10 @@ async function startServer() {
           res.locals.user = null;
         }
       } catch (err) {
-        logger.error("[Auth] Error loading/provisioning local user:", err.message || err);
+        logger.error(
+          "[Auth] Error loading/provisioning local user:",
+          err.message || err,
+        );
         req.user = null;
         res.locals.user = null;
       }

@@ -1,4 +1,5 @@
 import express from "express";
+
 import { isLoggedIn } from "../middleware/auth.js";
 
 const router = express.Router();

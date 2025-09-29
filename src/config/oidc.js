@@ -1,4 +1,4 @@
-export function buildOidcConfig({ port, nodeEnv }) {
+export function buildOidcConfig({ port }) {
   return {
     authRequired: false,
     auth0Logout: false,
