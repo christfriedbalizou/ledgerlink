@@ -71,3 +71,103 @@ MAX_ACCOUNTS_PER_INSTITUTION=1
 
 If these variables are unset, defaults are applied.
 
+## Database & Prisma
+
+LedgerLink uses Prisma with a template-driven schema approach. The committed `schema.template.prisma` is transformed into `schema.prisma` at runtime (injecting provider, URLs, etc.) by `scripts/generate-schema.js`.
+
+### Static Migrations Path (Default)
+
+If you are fine using the pre-generated, committed migrations (e.g. with SQLite dev setups) just run:
+
+```
+npm run db:migrate
+```
+
+This regenerates `schema.prisma`, applies any pending migrations via `prisma migrate deploy`, then runs `prisma generate`.
+
+### Multi-Provider Strategy (SQLite & PostgreSQL)
+
+The project now maintains **two explicit Prisma schema files**:
+
+```
+prisma/sqlite/schema.prisma
+prisma/postgres/schema.prisma
+```
+
+Each lives in its own folder so Prisma keeps separate `migrations/` alongside each schema (created on demand). This avoids mixing provider-specific SQL.
+
+#### Choosing a Provider
+
+Set `DATABASE_PROVIDER` and (optionally) `DATABASE_URL` before running any command that touches the database.
+
+Examples:
+
+```
+export DATABASE_PROVIDER=sqlite
+# optional override:
+export DATABASE_URL="file:./dev.db"
+
+export DATABASE_PROVIDER=postgresql
+export DATABASE_URL="postgresql://user:pass@localhost:5432/ledgerlink"
+```
+
+#### Creating / Applying Migrations
+
+Run:
+
+```
+npm run db:migrate
+```
+
+The helper script `scripts/db-migrate.js` will:
+* Detect the provider.
+* If no migrations exist for that provider, run `prisma migrate dev --name init` to create the baseline.
+* Otherwise run `prisma migrate deploy`.
+* Generate a provider-specific Prisma Client.
+
+Provider-specific shortcuts:
+
+```
+npm run db:migrate:sqlite
+npm run db:migrate:postgres
+```
+
+#### Generating New Migrations During Development
+
+For iterative schema work (e.g. adding a field) with the selected provider:
+
+```
+export DATABASE_PROVIDER=postgresql
+npx prisma migrate dev --schema prisma/postgres/schema.prisma --name add_new_field
+```
+
+Repeat similarly for SQLite if you need that provider's migration set.
+
+#### Divergent Schemas?
+
+Currently both schemas are identical. If a provider requires a different type (e.g. `Json` vs `String` fallback), you can apply the change only in one schema file. Make sure application logic stays portable or guards provider-specific behavior.
+
+#### Deprecated: Dynamic Baseline Script
+
+The previous dynamic on-the-fly baseline generation (`db:dynamic`) is deprecated in favor of clear, versioned migration histories per provider.
+
+#### Switching Providers After Data Exists
+
+Treat as a data migration exercise: export data, provision the new DB, run the other provider's migrations, then import transformed data.
+
+#### Troubleshooting
+
+* `Error: P1000` when switching to Postgres: ensure the Postgres server is reachable and credentials match `DATABASE_URL`.
+* Migrations appear missing: confirm you are editing the schema in the correct provider folder.
+* Client not updating: delete `node_modules/.prisma` and rerun `npm run db:migrate` with the desired provider.
+
+### Formatting & Linting
+
+All SQL migrations are auto-formatted on commit via `sql-formatter`. Run manually:
+
+```
+npm run format:sql
+```
+
+CI enforces formatting with `npm run lint:ci`.
+

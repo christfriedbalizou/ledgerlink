@@ -1,14 +1,14 @@
-// prisma/schema.template.prisma (updated with Institution model)
+// Multi-provider schema (SQLite variant)
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
 
-// Set up the Prisma client generator.
 generator client {
   provider = "prisma-client-js"
 }
 
-// ----------------------------------------------------
-// Data Models
-// ----------------------------------------------------
-
+// Models (kept identical across providers for now)
 model User {
   id           String        @id @default(uuid())
   email        String        @unique
@@ -38,14 +38,14 @@ model Institution {
 }
 
 model Account {
-  id           String       @id @default(uuid())
-  userId       String
-  plaidItemId  String       @unique
+  id            String       @id @default(uuid())
+  userId        String
+  plaidItemId   String       @unique
   institutionId String
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
-  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  institution  Institution  @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  institution   Institution  @relation(fields: [institutionId], references: [id], onDelete: Cascade)
 }
 
 model PlaidItem {

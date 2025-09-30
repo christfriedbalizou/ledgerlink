@@ -21,6 +21,50 @@ const __dirname = dirname(__filename);
 const app = express();
 const PORT = process.env.APP_PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || "development";
+// Enhanced provider guard: compare declared provider vs URL + available schemas
+import { readFileSync, existsSync } from "fs";
+const ENV_PROVIDER = (process.env.DATABASE_PROVIDER || "sqlite").toLowerCase();
+function readProvider(schemaPath) {
+  try {
+    const txt = readFileSync(schemaPath, "utf-8").split(/\n/).slice(0, 40).join("\n");
+    const m = txt.match(
+      /provider\s*=\s*"(postgresql|sqlite|mysql|mongodb|cockroachdb)"/,
+    );
+    return m ? m[1] : null;
+  } catch {
+    return null;
+  }
+}
+function providerGuard() {
+  const sqliteSchema = "prisma/sqlite/schema.prisma";
+  const pgSchema = "prisma/postgres/schema.prisma";
+  const declaredSqlite = existsSync(sqliteSchema) ? readProvider(sqliteSchema) : null;
+  const declaredPg = existsSync(pgSchema) ? readProvider(pgSchema) : null;
+  const url = process.env.DATABASE_URL || "";
+  const looksSqlite = url.startsWith("file:") || url.includes("sqlite");
+  const looksPostgres = /postgres(ql)?:\/\//i.test(url);
+  if (ENV_PROVIDER === "postgresql" && looksSqlite) {
+    logger.warn(
+      "[ProviderGuard] DATABASE_PROVIDER=postgresql but DATABASE_URL appears to reference SQLite (file:).",
+    );
+  }
+  if (ENV_PROVIDER === "sqlite" && looksPostgres) {
+    logger.warn(
+      "[ProviderGuard] DATABASE_PROVIDER=sqlite but DATABASE_URL looks like Postgres (postgres://).",
+    );
+  }
+  if (ENV_PROVIDER === "postgresql" && declaredPg !== "postgresql") {
+    logger.warn(
+      `[ProviderGuard] postgres schema provider mismatch (found: ${declaredPg || "none"}).`,
+    );
+  }
+  if (ENV_PROVIDER === "sqlite" && declaredSqlite !== "sqlite") {
+    logger.warn(
+      `[ProviderGuard] sqlite schema provider mismatch (found: ${declaredSqlite || "none"}).`,
+    );
+  }
+}
+providerGuard();
 
 app.set("view engine", "ejs");
 app.set("views", join(__dirname, "../ui/views"));

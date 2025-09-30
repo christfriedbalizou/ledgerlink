@@ -1,0 +1,98 @@
+name: Portability (Multi-Provider)
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  portability:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        db: [sqlite, postgres]
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: ledgerlink
+        ports:
+          - "5432:5432"
+        options: >-
+          --health-cmd="pg_isready -U postgres" --health-interval=5s --health-timeout=5s --health-retries=10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Copy env template
+        run: cp .env.example .env
+
+      - name: Ensure clean provider directories
+        run: |
+          if [ "${{ matrix.db }}" = "sqlite" ]; then rm -rf prisma/sqlite/migrations || true; fi
+          if [ "${{ matrix.db }}" = "postgres" ]; then rm -rf prisma/postgres/migrations || true; fi
+
+      - name: Wait for Postgres
+        if: matrix.db == 'postgres'
+        run: |
+          for i in {1..30}; do
+            if pg_isready -h localhost -p 5432 -U postgres; then echo "Postgres is up"; break; fi
+            echo "Waiting for Postgres..."; sleep 2;
+          done
+          pg_isready -h localhost -p 5432 -U postgres
+        env:
+          PGPASSWORD: postgres
+
+      - name: Run migrations (sqlite)
+        if: matrix.db == 'sqlite'
+        run: npm run db:migrate:sqlite
+        env:
+          DATABASE_PROVIDER: sqlite
+          DATABASE_URL: file:./ci-sqlite.db
+          PLAID_CLIENT_ID: ${{ secrets.PLAID_CLIENT_ID }}
+          PLAID_SECRET: ${{ secrets.PLAID_SECRET }}
+          PLAID_ENCRYPTION_KEY: ${{ secrets.PLAID_ENCRYPTION_KEY }}
+
+      - name: Run migrations (postgres)
+        if: matrix.db == 'postgres'
+        run: npm run db:migrate:postgres
+        env:
+          DATABASE_PROVIDER: postgresql
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ledgerlink
+          PLAID_CLIENT_ID: ${{ secrets.PLAID_CLIENT_ID }}
+          PLAID_SECRET: ${{ secrets.PLAID_SECRET }}
+          PLAID_ENCRYPTION_KEY: ${{ secrets.PLAID_ENCRYPTION_KEY }}
+
+      - name: Run test suite (sqlite)
+        if: matrix.db == 'sqlite'
+        run: npm test -- --runInBand
+        env:
+          DATABASE_PROVIDER: sqlite
+          DATABASE_URL: file:./ci-sqlite.db
+          PLAID_CLIENT_ID: ${{ secrets.PLAID_CLIENT_ID }}
+          PLAID_SECRET: ${{ secrets.PLAID_SECRET }}
+          PLAID_ENCRYPTION_KEY: ${{ secrets.PLAID_ENCRYPTION_KEY }}
+
+      - name: Run test suite (postgres)
+        if: matrix.db == 'postgres'
+        run: npm test -- --runInBand
+        env:
+          DATABASE_PROVIDER: postgresql
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ledgerlink
+          PLAID_CLIENT_ID: ${{ secrets.PLAID_CLIENT_ID }}
+          PLAID_SECRET: ${{ secrets.PLAID_SECRET }}
+          PLAID_ENCRYPTION_KEY: ${{ secrets.PLAID_ENCRYPTION_KEY }}
