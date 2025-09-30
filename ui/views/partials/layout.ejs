@@ -10,14 +10,9 @@
 </head>
 <body class="min-h-screen bg-gray-50 dark:bg-gray-900 dark:text-gray-100 transition-colors">
   <%- include('./header', { user, currentPage }) %>
-  <% if (user && currentPage !== 'login') { %>
-    <div class="flex">
-      <%- include('./sidebar', { user, currentPage }) %>
-      <div class="flex-1"> <%- body %> </div>
-    </div>
-  <% } else { %>
-    <div class=""> <%- body %> </div>
-  <% } %>
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
+    <%- body %>
+  </main>
   <script src="/js/main.js"></script>
 </body>
 </html>
