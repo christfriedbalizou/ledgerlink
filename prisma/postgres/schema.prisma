@@ -16,6 +16,7 @@ model User {
   accounts     Account[]
   plaidItems   PlaidItem[]
   institutions Institution[]
+  settings     UserSetting?
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 }
@@ -59,4 +60,14 @@ model PlaidItem {
   updatedAt        DateTime     @updatedAt
   user             User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   institution      Institution  @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+}
+
+model UserSetting {
+  id                String   @id @default(uuid())
+  userId            String   @unique
+  enableActual      Boolean?
+  enableEmailExport Boolean?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

@@ -7,8 +7,8 @@
  *
  * If ALL_PROVIDERS=1, iterates all schemas sequentially.
  */
-import 'dotenv/config';
-import { logger } from '../src/utils/logger.js';
+import "dotenv/config";
+import { logger } from "../src/utils/logger.js";
 import { execSync } from "node:child_process";
 import { existsSync, readdirSync } from "node:fs";
 
@@ -77,8 +77,13 @@ function migrateSingle(provider) {
 }
 
 if (process.env.DEBUG_DB_MIGRATE) {
-  const redactedUrl = (process.env.DATABASE_URL || '').replace(/:(?:[^:@/]+)@/,'://***@');
-  logger.debug(`[db-migrate] DEBUG provider(env): ${process.env.DATABASE_PROVIDER || '<<unset>>'} url: ${redactedUrl || '<<unset>>'}`);
+  const redactedUrl = (process.env.DATABASE_URL || "").replace(
+    /:(?:[^:@/]+)@/,
+    "://***@",
+  );
+  logger.debug(
+    `[db-migrate] DEBUG provider(env): ${process.env.DATABASE_PROVIDER || "<<unset>>"} url: ${redactedUrl || "<<unset>>"}`,
+  );
 }
 
 if (process.env.ALL_PROVIDERS) {

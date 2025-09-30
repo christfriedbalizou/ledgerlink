@@ -15,14 +15,45 @@
       </div>
     </div>
     <form id="settings-form" class="card mb-8 space-y-6">
-      <h2 class="text-lg font-medium text-gray-900 dark:text-primary-200">Syncing Option</h2>
-      <div class="flex items-center">
-        <input id="export-actual" name="export-actual" type="checkbox" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
-        <label for="export-actual" class="ml-3 text-sm text-gray-700">Enable Actual Budget integration</label>
-      </div>
-      <div class="pt-2">
+      <h2 class="text-lg font-medium text-gray-900 dark:text-primary-200">Syncing Preferences</h2>
+      <fieldset>
+        <div class="space-y-4">
+          <div class="flex items-center">
+            <input id="integration-actual" name="integrationPreference" value="actual" type="radio" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300">
+            <label for="integration-actual" class="ml-3 text-sm text-gray-700">Actual Budget Integration</label>
+          </div>
+          <div class="flex items-center pt-2">
+            <input id="integration-email" name="integrationPreference" value="email" type="radio" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300">
+            <label for="integration-email" class="ml-3 text-sm text-gray-700">Email CSV Exports</label>
+          </div>
+        </div>
+      </fieldset>
+      <p class="text-xs text-gray-500">Only one personal sync method can be active.</p>
+      <div class="pt-2 flex justify-end">
         <button type="submit" class="btn-primary">Save Changes</button>
       </div>
     </form>
+    <script>
+      document.addEventListener('DOMContentLoaded', async () => {
+        try {
+          const resp = await fetch('/api/user/settings');
+          if (!resp.ok) return;
+          const data = await resp.json();
+          const radioActual = document.getElementById('integration-actual');
+          const radioEmail = document.getElementById('integration-email');
+          if (data.enableActual) {
+            if (radioActual) radioActual.checked = true;
+          } else if (data.enableEmailExport) {
+            if (radioEmail) radioEmail.checked = true;
+          } else {
+            // fallback: select Actual if env default is true else Email
+            if (radioActual && radioEmail) {
+              const envDefault = data.enableActual; // server already applied fallback
+              (envDefault ? radioActual : radioEmail).checked = true;
+            }
+          }
+        } catch {}
+      });
+    </script>
   </div>
 </main>

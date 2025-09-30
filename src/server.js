@@ -14,6 +14,7 @@ import User from "./models/User.js";
 import authRoutes from "./routes/auth.js";
 import plaidRouter from "./routes/plaid.js";
 import { logger } from "./utils/logger.js";
+import { isLoggedIn as requireAuth } from "./middleware/auth.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -172,6 +173,72 @@ async function startServer() {
 
   app.use("/auth", authRoutes);
   app.use("/api/plaid", isLoggedIn, plaidRouter);
+
+  // User settings APIs
+  const DEFAULT_ENABLE_ACTUAL = /^true$/i.test(process.env.ENABLE_ACTUAL || "false");
+
+  app.get("/api/user/settings", requireAuth, async (req, res) => {
+    try {
+      const setting = await prisma.userSetting.findUnique({
+        where: { userId: req.user.id },
+      });
+      res.json({
+        enableActual:
+          setting?.enableActual !== null && setting?.enableActual !== undefined
+            ? setting.enableActual
+            : DEFAULT_ENABLE_ACTUAL,
+        enableEmailExport: setting?.enableEmailExport || false,
+      });
+    } catch (e) {
+      logger.error("GET /api/user/settings error", e.message || e);
+      res.status(500).json({ error: "Failed to load settings" });
+    }
+  });
+
+  app.post("/api/user/settings", requireAuth, async (req, res) => {
+    try {
+      const { enableActual, enableEmailExport } = req.body || {};
+      const data = {
+        enableActual:
+          typeof enableActual === "boolean"
+            ? enableActual
+            : enableActual === "true"
+              ? true
+              : enableActual === "false"
+                ? false
+                : undefined,
+        enableEmailExport:
+          typeof enableEmailExport === "boolean"
+            ? enableEmailExport
+            : enableEmailExport === "true"
+              ? true
+              : enableEmailExport === "false"
+                ? false
+                : undefined,
+      };
+      const cleaned = Object.fromEntries(
+        Object.entries(data).filter(([, v]) => v !== undefined),
+      );
+      const existing = await prisma.userSetting.findUnique({
+        where: { userId: req.user.id },
+      });
+      let saved;
+      if (existing) {
+        saved = await prisma.userSetting.update({
+          where: { userId: req.user.id },
+          data: cleaned,
+        });
+      } else {
+        saved = await prisma.userSetting.create({
+          data: { userId: req.user.id, ...cleaned },
+        });
+      }
+      res.json({ ok: true, settings: saved });
+    } catch (e) {
+      logger.error("POST /api/user/settings error", e.message || e);
+      res.status(500).json({ error: "Failed to save settings" });
+    }
+  });
 
   // Lightweight account/institution stats for dynamic dashboard refresh
   app.get("/api/me/account-stats", isLoggedIn, async (req, res) => {

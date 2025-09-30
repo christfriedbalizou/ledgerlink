@@ -66,7 +66,31 @@ function initializeThemeToggle() {
 async function handleSettingsSubmit(event) {
   event.preventDefault();
   const formData = new FormData(event.target);
-  const payload = Object.fromEntries(formData);
+  const raw = Object.fromEntries(formData);
+  const payload = {
+    ...(raw.integrationPreference
+      ? {
+          enableActual: raw.integrationPreference === "actual",
+          enableEmailExport: raw.integrationPreference === "email",
+        }
+      : {
+          enableActual:
+            raw.enableActual === "on" ||
+            raw.enableActual === "true" ||
+            raw.enableActual === true,
+          enableEmailExport:
+            raw.enableEmailExport === "on" ||
+            raw.enableEmailExport === "true" ||
+            raw.enableEmailExport === true,
+        }),
+  };
+  const submitBtn = event.target.querySelector('button[type="submit"]');
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.classList.add("opacity-60", "cursor-not-allowed");
+    submitBtn.dataset.originalText = submitBtn.textContent;
+    submitBtn.textContent = "Saving...";
+  }
   try {
     const response = await fetch("/api/user/settings", {
       method: "POST",
@@ -75,12 +99,21 @@ async function handleSettingsSubmit(event) {
     });
     if (response.ok) {
       showNotification("Settings saved successfully!", "success");
+      if (submitBtn) submitBtn.textContent = "Saved";
     } else {
       throw new Error("Failed to save settings");
     }
   } catch (err) {
     showNotification("Error saving settings: " + err.message, "error");
+    if (submitBtn) submitBtn.textContent = "Error";
   }
+  setTimeout(() => {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.classList.remove("opacity-60", "cursor-not-allowed");
+      submitBtn.textContent = submitBtn.dataset.originalText || "Save Changes";
+    }
+  }, 1800);
 }
 
 async function handleAdminSubmit(event) {
