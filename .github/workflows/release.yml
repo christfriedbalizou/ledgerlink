@@ -23,7 +23,7 @@ jobs:
         run: cp .env.example .env
 
       - name: Run tests
-        run: npm test
+        run: npm test -- --runInBand
         env:
           PLAID_CLIENT_ID: ${{ secrets.PLAID_CLIENT_ID }}
           PLAID_SECRET: ${{ secrets.PLAID_SECRET }}
