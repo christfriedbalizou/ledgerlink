@@ -41,16 +41,7 @@ class User {
   }
 
   static async institutionCount(userId) {
-    try {
-      return await prisma.institution.count({ where: { userId } });
-    } catch {
-      const result = await prisma.account.findMany({
-        where: { userId },
-        select: { institutionId: true },
-        distinct: ["institutionId"],
-      });
-      return result.length;
-    }
+    return prisma.institution.count({ where: { userId } });
   }
 
   static async accountCountForInstitution(userId, institutionId) {

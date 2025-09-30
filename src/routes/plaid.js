@@ -91,6 +91,24 @@ router.post("/link-token", async (req, res) => {
   }
 });
 
+// Plaid Link event tracking endpoint (moved from server for testability & cohesion)
+router.post("/event", (req, res) => {
+  try {
+    const { eventName, metadata } = req.body || {};
+    if (!eventName) return res.status(400).json({ error: "Missing eventName" });
+    const user = req.user || { id: "unknown" };
+    logger.info(
+      `[PlaidEvent] user=${user.id} event=${eventName} meta=${JSON.stringify(
+        metadata || {},
+      )}`,
+    );
+    res.json({ ok: true });
+  } catch (e) {
+    logger.warn("Plaid event logging failed", e);
+    res.json({ ok: false });
+  }
+});
+
 router.post("/set-token", async (req, res) => {
   logger.info("/plaid/set-token");
   const { public_token, institutionName, institutionId, plaidInstitutionId, product } =
@@ -98,13 +116,43 @@ router.post("/set-token", async (req, res) => {
   const user = req.user;
   try {
     let effectiveInstitutionId = institutionId;
+    let fetchedInstitutionMeta = null;
+    let sanitizedLogo = null;
+    if (plaidInstitutionId) {
+      try {
+        const plaid = getPlaidClient();
+        const instResp = await plaid.institutionsGetById({
+          institution_id: plaidInstitutionId,
+          country_codes: (process.env.PLAID_COUNTRY_CODES || "US")
+            .split(",")
+            .map((s) => s.trim()),
+          options: { include_optional_metadata: true },
+        });
+        fetchedInstitutionMeta = instResp.data.institution || null;
+        if (fetchedInstitutionMeta?.logo) {
+          sanitizedLogo = fetchedInstitutionMeta.logo
+            .replace(/^data:image\/[^;]+;base64,/, "")
+            .trim();
+        }
+      } catch (metaErr) {
+        logger.debug(
+          "Plaid institution metadata fetch failed",
+          metaErr.message || metaErr,
+        );
+      }
+    }
     if (!effectiveInstitutionId && plaidInstitutionId) {
       try {
         const inst = await Institution.findOrCreate(
           user.id,
           plaidInstitutionId,
-          institutionName || "Unknown Institution",
-          { maxInstitutionsPerUser: MAX_INSTITUTIONS_PER_USER },
+          institutionName || fetchedInstitutionMeta?.name || "Unknown Institution",
+          {
+            maxInstitutionsPerUser: MAX_INSTITUTIONS_PER_USER,
+            logo: sanitizedLogo,
+            primaryColor: fetchedInstitutionMeta?.primary_color || null,
+            url: fetchedInstitutionMeta?.url || null,
+          },
         );
         effectiveInstitutionId = inst.id;
       } catch (e) {
@@ -152,6 +200,22 @@ router.post("/set-token", async (req, res) => {
       institutionId: effectiveInstitutionId || institutionId,
       plaidInstitutionId,
     });
+    // Hard delete semantics: no restore of soft-deleted rows needed.
+    // Update institution branding if we fetched metadata and institution exists
+    if (fetchedInstitutionMeta && effectiveInstitutionId) {
+      try {
+        await prisma.institution.update({
+          where: { id: effectiveInstitutionId },
+          data: {
+            logo: sanitizedLogo || undefined,
+            primaryColor: fetchedInstitutionMeta.primary_color || undefined,
+            url: fetchedInstitutionMeta.url || undefined,
+          },
+        });
+      } catch (e) {
+        logger.debug("Institution branding update skipped", e.message || e);
+      }
+    }
     await Account.createForUser(
       user.id,
       {
@@ -180,9 +244,10 @@ router.delete("/account/:accountId", async (req, res) => {
   const { accountId } = req.params;
   const user = req.user;
   try {
-    await Account.removeById(user.id, accountId);
-    logger.info(`Account ${accountId} removed for user ${user.id}`);
-    res.json({ success: true });
+    // Hard delete
+    await prisma.account.delete({ where: { id: accountId } });
+    logger.info(`Account ${accountId} deleted for user ${user.id}`);
+    res.json({ success: true, deleted: true, accountId });
   } catch (err) {
     logger.error("Plaid account delete error", err);
     res.status(500).json({ error: err.message });
@@ -198,20 +263,19 @@ router.delete("/institution/:institutionId", async (req, res) => {
     if (!inst || inst.userId !== user.id) {
       return res.status(404).json({ error: "Institution not found" });
     }
-    const [accountCount, itemCount] = await Promise.all([
-      prisma.account.count({ where: { institutionId } }),
-      prisma.plaidItem.count({ where: { institutionId } }),
-    ]);
-    if (accountCount > 0 || itemCount > 0) {
-      return res.status(409).json({
-        error: "Cannot delete institution with linked accounts or Plaid items",
-        accountCount,
-        itemCount,
-      });
-    }
-    await Institution.deleteForUser(user.id, institutionId);
-    logger.info(`Institution ${institutionId} deleted for user ${user.id}`);
-    return res.json({ success: true });
+    // Hard delete cascading via explicit deletes in a transaction.
+    const [accountCount, itemCount] = await prisma.$transaction(async (tx) => {
+      const aCount = await tx.account.count({ where: { institutionId } });
+      const iCount = await tx.plaidItem.count({ where: { institutionId } });
+      await tx.account.deleteMany({ where: { institutionId } });
+      await tx.plaidItem.deleteMany({ where: { institutionId } });
+      await tx.institution.delete({ where: { id: institutionId } });
+      return [aCount, iCount];
+    });
+    logger.info(
+      `Institution ${institutionId} hard-deleted along with ${accountCount} accounts and ${itemCount} items for user ${user.id}`,
+    );
+    return res.json({ success: true, deleted: true, accountCount, itemCount });
   } catch (err) {
     logger.error("Plaid institution delete error", err);
     return res.status(500).json({ error: err.message });

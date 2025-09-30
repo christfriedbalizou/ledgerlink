@@ -126,11 +126,10 @@ describe("Plaid Integration (Sandbox)", () => {
       expect(res.status).toBe(404);
     });
 
-    it("should prevent deletion when accounts or items exist (409)", async () => {
+    it("should cascade delete institution with accounts and items", async () => {
       const inst = await prisma.institution.create({
         data: { userId: user.id, plaidInstitutionId: "ins_busy", name: "Busy Inst" },
       });
-      // Add PlaidItem & Account referencing institution
       const item = await prisma.plaidItem.create({
         data: {
           userId: user.id,
@@ -148,10 +147,16 @@ describe("Plaid Integration (Sandbox)", () => {
         },
       });
       const res = await request(userApp).delete(`/api/plaid/institution/${inst.id}`);
-      expect(res.status).toBe(409);
-      expect(res.body.error).toMatch(/Cannot delete institution/);
-      expect(res.body.accountCount).toBeGreaterThan(0);
-      expect(res.body.itemCount).toBeGreaterThan(0);
+      expect(res.status).toBe(200);
+      expect(res.body.deleted).toBe(true);
+      expect(res.body.accountCount).toBe(1);
+      expect(res.body.itemCount).toBe(1);
+      const instCheck = await prisma.institution.findUnique({ where: { id: inst.id } });
+      expect(instCheck).toBeNull();
+      const itemCheck = await prisma.plaidItem.findUnique({
+        where: { plaidItemId: item.plaidItemId },
+      });
+      expect(itemCheck).toBeNull();
     });
 
     it("should 404 when attempting to delete an institution owned by another user", async () => {

@@ -14,11 +14,17 @@
     "db:migrate": "node scripts/generate-schema.js && prisma migrate deploy && prisma generate",
     "db:seed": "npm run db:migrate && node src/db/seed.js",
     "lint": "eslint . --ext .js",
-    "lint:fix": "eslint . --ext .js --fix",
+  "lint:fix": "eslint . --ext .js --fix || true",
     "lint:ui": "eslint ui --ext .js",
     "lint:ui:fix": "eslint ui --ext .js --fix",
     "format": "prettier . --write",
     "format:check": "prettier . --check .",
+    "format:sql": "find prisma/migrations -name '*.sql' -print0 | xargs -0 -I{} npx sql-formatter --fix {}",
+    "format:sql:check": "echo 'Deprecated: use check:sql'",
+    "check:sql": "npm run format:sql && git diff --exit-code --quiet || (echo 'SQL formatting issues found. Run npm run format:sql to fix.' && exit 1)",
+    "lint:sql": "npm run check:sql",
+    "format:all": "npm run format && npm run format:sql",
+    "lint:ci": "npm run format:check && npm run lint && npm run check:sql",
     "prepare": "husky install"
   },
   "keywords": [
@@ -61,6 +67,7 @@
     "postcss-cli": "^10.1.0",
     "prettier": "^3.3.3",
     "prisma": "^6.16.2",
+    "sql-formatter": "^15.4.7",
     "supertest": "^7.1.4",
     "tailwindcss": "^3.3.3"
   },
@@ -68,6 +75,9 @@
     "ui/**/*.js": [
       "eslint --fix",
       "prettier --write"
+    ],
+    "prisma/migrations/**/*.sql": [
+      "bash -c 'for f in \"$@\"; do npx sql-formatter --fix \"$f\"; done' --"
     ]
   }
 }

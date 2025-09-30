@@ -24,15 +24,29 @@ class Institution {
     userId,
     plaidInstitutionId,
     name,
-    { maxInstitutionsPerUser = 2 } = {},
+    { maxInstitutionsPerUser = 2, logo, primaryColor, url } = {},
   ) {
     let inst = await this.findByUserAndPlaidInstitutionId(userId, plaidInstitutionId);
+    if (inst) {
+      // If this record was previously soft-deleted (legacy data), hard purge & recreate to honor hard-delete semantics
+      if (inst.deletedAt) {
+        await prisma.$transaction(async (tx) => {
+          await tx.account.deleteMany({ where: { institutionId: inst.id } });
+          await tx.plaidItem.deleteMany({ where: { institutionId: inst.id } });
+          await tx.institution.delete({ where: { id: inst.id } });
+        });
+      } else {
+        return inst; // existing active institution
+      }
+    }
+    // Re-check if we still have an active institution after potential purge
+    inst = await this.findByUserAndPlaidInstitutionId(userId, plaidInstitutionId);
     if (inst) return inst;
     if (!(await this.canAdd(userId, maxInstitutionsPerUser))) {
       throw new Error(`Institution limit (${maxInstitutionsPerUser}) reached for user`);
     }
     return prisma.institution.create({
-      data: { userId, plaidInstitutionId, name },
+      data: { userId, plaidInstitutionId, name, logo, primaryColor, url },
     });
   }
 

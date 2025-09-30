@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  darkMode: 'class', // Enable class strategy for dark mode
+  darkMode: "class", // Enable class strategy for dark mode
   content: ["./ui/views/**/*.ejs", "./ui/public/**/*.html", "./ui/public/js/**/*.js"],
   safelist: [
     // Buttons & layout
@@ -43,17 +43,17 @@ module.exports = {
     "bg-yellow-100",
     "text-yellow-800",
     // Dark mode variants that might be dynamically toggled
-    'dark:bg-gray-900',
-    'dark:text-gray-100',
-    'dark:bg-gray-800',
-    'dark:border-gray-700',
-    'dark:text-gray-300',
-    'dark:hover:bg-gray-700',
-    'dark:hover:bg-gray-700/50',
-    'dark:bg-primary-700/30',
-    'dark:text-primary-200',
-    'dark:border-primary-400',
-    'dark:text-gray-400',
+    "dark:bg-gray-900",
+    "dark:text-gray-100",
+    "dark:bg-gray-800",
+    "dark:border-gray-700",
+    "dark:text-gray-300",
+    "dark:hover:bg-gray-700",
+    "dark:hover:bg-gray-700/50",
+    "dark:bg-primary-700/30",
+    "dark:text-primary-200",
+    "dark:border-primary-400",
+    "dark:text-gray-400",
   ],
   theme: {
     extend: {

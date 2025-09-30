@@ -7,62 +7,129 @@
     </div>
     
     <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 mb-8">
-      <div class="card"> <div class="flex items-center"> <div class="flex-shrink-0"> <svg class="h-8 w-8 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg> </div><div class="ml-5 w-0 flex-1"> <dl><dt class="text-sm font-medium text-gray-500 truncate">Connected Accounts</dt><dd class="text-lg font-semibold text-gray-900"><%= accounts ? accounts.length : 0 %></dd></dl> </div></div></div>
-      <div class="card"> <div class="flex items-center"> <div class="flex-shrink-0"> <svg class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> </div><div class="ml-5 w-0 flex-1"> <dl><dt class="text-sm font-medium text-gray-500 truncate">Last Sync Status</dt><dd class="text-lg font-semibold text-green-600">Successful</dd></dl> </div></div></div>
-      <div class="card"> <div class="flex items-center"> <div class="flex-shrink-0"> <svg class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> </div><div class="ml-5 w-0 flex-1"> <dl><dt class="text-sm font-medium text-gray-500 truncate">Next Sync</dt><dd class="text-lg font-semibold text-blue-600">2 hours</dd></dl> </div></div></div>
+      <div class="card">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <svg class="h-8 w-8 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt class="text-sm font-medium text-gray-500 truncate">Connected Accounts</dt>
+              <dd class="text-lg font-semibold text-gray-900 dark:text-primary-200"><%= accountsCount %></dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <svg class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt class="text-sm font-medium text-gray-500 truncate">Last Sync Status</dt>
+              <dd class="text-lg font-semibold text-green-600">Successful</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <svg class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt class="text-sm font-medium text-gray-500 truncate">Next Sync</dt>
+              <dd class="text-lg font-semibold text-blue-600">2 hours</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
     </div>
     
     <div class="mb-8">
-      <div class="sm:flex sm:items-center sm:justify-between"> <div><h2 class="text-lg font-medium text-gray-900">Connected Accounts</h2><p class="mt-1 text-sm text-gray-600">Manage your linked bank accounts and their sync settings</p></div><div class="mt-4 sm:mt-0"><button type="button" class="btn-primary" onclick="linkNewAccount()">Link New Account</button></div></div>
+      <div class="sm:flex sm:items-center sm:justify-between">
+        <div>
+          <h2 class="text-lg font-medium text-gray-900">Institutions & Accounts</h2>
+          <p class="mt-1 text-sm text-gray-600">Your connected institutions grouped with their accounts</p>
+        </div>
+        <div class="mt-4 sm:mt-0 flex items-center space-x-3">
+          <select id="plaid-product" class="input-field w-40 text-sm">
+            <option value="transactions" selected>Transactions</option>
+            <option value="auth">Auth</option>
+            <option value="identity">Identity</option>
+            <option value="assets">Assets</option>
+          </select>
+          <button id="link-account-btn" type="button" class="btn-primary flex items-center space-x-2" onclick="linkNewAccount()">
+            <span class="btn-label">Link New Account</span>
+            <span class="spinner hidden h-4 w-4 border-2 border-white/70 border-t-transparent rounded-full animate-spin"></span>
+          </button>
+        </div>
+      </div>
       <div class="mt-6">
-        <% if (accounts && accounts.length > 0) { %>
-          <div class="grid gap-6 lg:grid-cols-2">
-            <% accounts.forEach(account => { %>
-              <div class="card">
-                <div class="flex items-center justify-between">
-            <div class="mt-4 sm:mt-0 flex items-center space-x-3">
-              <select id="plaid-product" class="input-field w-40 text-sm">
-                <option value="transactions" selected>Transactions</option>
-                <option value="auth">Auth</option>
-                <option value="identity">Identity</option>
-                <option value="assets">Assets</option>
-              </select>
-              <button id="link-account-btn" type="button" class="btn-primary flex items-center space-x-2" onclick="linkNewAccount()">
-                <span class="btn-label">Link New Account</span>
-                <span class="spinner hidden h-4 w-4 border-2 border-white/70 border-t-transparent rounded-full animate-spin"></span>
-              </button>
-            </div>
-                    <div class="flex-shrink-0">
-                      <div class="h-10 w-10 bg-primary-100 rounded-full flex items-center justify-center">
-                        <svg class="h-6 w-6 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-                      </div>
+        <% if (institutions && institutions.length > 0) { %>
+          <div class="space-y-6">
+            <% institutions.forEach(inst => { %>
+              <div class="card relative pl-4 border-l-4 border-primary-500 dark:border-primary-400 group transition-colors hover:bg-primary-50/60 dark:hover:bg-primary-900/10">
+                <div class="flex items-start justify-between">
+                  <div class="flex items-center space-x-4">
+                    <div class="h-12 w-12 rounded-full flex items-center justify-center overflow-hidden bg-primary-100 dark:bg-primary-900/30 ring-1 ring-primary-200 dark:ring-primary-700">
+                      <% if (inst.logo) { %>
+                        <% const isData = inst.logo.startsWith('data:'); %>
+                        <img src="<%= isData ? inst.logo : ('data:image/png;base64,' + inst.logo) %>" alt="<%= inst.name %> logo" class="h-12 w-12 object-cover" loading="lazy" />
+                      <% } else { %>
+                        <span class="text-primary-600 dark:text-primary-300 font-semibold text-lg"><%= inst.name.charAt(0) %></span>
+                      <% } %>
                     </div>
-                    <div class="ml-4">
-                          <h3 class="text-sm font-medium text-gray-900"><%= (account.institution && account.institution.name) ? account.institution.name : 'Bank Account' %></h3>
-                          <p class="text-sm text-gray-500">Item ID: <%= account.plaidItemId %></p>
+                    <div>
+                      <h3 class="text-base font-semibold text-gray-900 dark:text-primary-200 group-hover:text-primary-700 dark:group-hover:text-primary-300 transition-colors"><%= inst.name %></h3>
+                      <p class="text-xs text-gray-500 dark:text-gray-400">Institution ID: <%= inst.id %></p>
+                      <p class="mt-1 text-xs text-gray-500 dark:text-gray-400"><span class="font-medium text-primary-600 dark:text-primary-300"><%= inst.accounts.length %></span> account<%= inst.accounts.length !== 1 ? 's' : '' %></p>
                     </div>
                   </div>
-                  <div class="flex items-center space-x-2">
-                    <span class="status-success">Active</span>
-                    <button class="text-gray-400 hover:text-gray-600">
-                      <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/></svg>
+                  <div class="relative">
+                    <button type="button" class="text-gray-400 hover:text-gray-600" onclick="toggleMenu(this)">
+                      <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/></svg>
                     </button>
+                    <div class="menu hidden absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-10 py-1">
+                      <button class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-600/10" onclick="deleteInstitution('<%= inst.id %>')">Delete Institution</button>
+                    </div>
                   </div>
                 </div>
-                <div class="mt-4 flex justify-between text-sm text-gray-600">
-                  <span>Last synced: Just now</span>
-                  <span>Next sync: 2 hours</span>
-                </div>
+                <% if (inst.accounts.length > 0) { %>
+                  <ul class="mt-5 divide-y divide-gray-200 dark:divide-gray-700 border border-gray-100 dark:border-gray-700 rounded-md">
+                    <% inst.accounts.forEach(acc => { %>
+                      <li class="p-4 flex items-center justify-between">
+                        <div>
+                          <p class="text-sm font-medium text-gray-900">Account • <span class="text-gray-500">Item: <%= acc.plaidItemId %></span></p>
+                          <p class="mt-1 text-xs text-gray-500">Created <%= new Date(acc.createdAt).toLocaleDateString() %></p>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                          <span class="status-success">Active</span>
+                          <button class="text-gray-400 hover:text-red-600" title="Delete account" onclick="deleteAccount('<%= acc.id %>')">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                          </button>
+                        </div>
+                      </li>
+                    <% }) %>
+                  </ul>
+                <% } else { %>
+                  <p class="mt-4 text-sm text-gray-500">No accounts yet for this institution.</p>
+                <% } %>
               </div>
             <% }) %>
           </div>
         <% } else { %>
           <div class="card text-center py-12">
             <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-            <h3 class="mt-2 text-sm font-medium text-gray-900">No accounts connected</h3>
-            <p class="mt-1 text-sm text-gray-500">Get started by connecting your first bank account.</p>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">No institutions yet</h3>
+            <p class="mt-1 text-sm text-gray-500">Connect your first account to get started.</p>
             <div class="mt-6">
-              <button type="button" class="btn-primary" onclick="linkNewAccount()">Connect Your First Account</button>
+              <button type="button" id="link-account-btn-empty" class="btn-primary flex items-center space-x-2" onclick="linkNewAccount()">
+                <span class="btn-label">Connect Your First Account</span>
+                <span class="spinner hidden h-4 w-4 border-2 border-white/70 border-t-transparent rounded-full animate-spin"></span>
+              </button>
             </div>
           </div>
         <% } %>
@@ -72,10 +139,7 @@
     <div>
       <h2 class="text-lg font-medium text-gray-900">Recent Activity</h2>
       <div class="mt-6 card">
-                                <button type="button" id="link-account-btn-empty" class="btn-primary flex items-center space-x-2" onclick="linkNewAccount()">
-                                  <span class="btn-label">Connect Your First Account</span>
-                                  <span class="spinner hidden h-4 w-4 border-2 border-white/70 border-t-transparent rounded-full animate-spin"></span>
-                                </button>
+        <div class="text-center py-8 text-gray-500">
           <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
           <p class="mt-2">No recent activity</p>
         </div>
@@ -83,3 +147,17 @@
     </div>
   </div>
 </main>
+
+<!-- Delete Confirmation Modal (top-right position) -->
+<div id="delete-modal" class="fixed inset-0 z-50 hidden flex items-start justify-end p-4 pointer-events-none">
+  <div class="absolute inset-0 bg-gray-900/40 backdrop-blur-sm pointer-events-auto" onclick="closeDeleteModal()"></div>
+  <div class="relative mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-sm p-6 pointer-events-auto border border-gray-200 dark:border-gray-700">
+    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100" id="delete-modal-title">Delete Institution</h3>
+    <p class="mt-2 text-sm text-gray-600 dark:text-gray-300" id="delete-modal-body"></p>
+    <div class="mt-6 flex justify-end space-x-3">
+      <button type="button" class="btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+      <button type="button" id="delete-modal-primary" class="btn-danger" onclick="confirmDeletion()">Delete</button>
+    </div>
+  </div>
+</div>
+

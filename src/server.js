@@ -143,40 +143,32 @@ async function startServer() {
     }
   });
 
-  // Plaid Link event tracking endpoint (best-effort logging)
-  app.post("/api/plaid/event", isLoggedIn, (req, res) => {
-    try {
-      const { eventName, metadata } = req.body || {};
-      if (!eventName) return res.status(400).json({ error: "Missing eventName" });
-      logger.info(
-        `[PlaidEvent] user=${req.user.id} event=${eventName} meta=${JSON.stringify(
-          metadata || {},
-        )}`,
-      );
-      res.json({ ok: true });
-    } catch (e) {
-      logger.warn("Plaid event logging failed", e);
-      res.json({ ok: false });
-    }
-  });
-
   app.get("/", (req, res) => {
     if (req.oidc?.isAuthenticated()) return res.redirect("/dashboard");
-    res.render("login", { title: "Login - LedgerLink", user: null, currentPage: 'login' });
+    res.render("login", {
+      title: "Login - LedgerLink",
+      user: null,
+      currentPage: "login",
+    });
   });
 
   app.get("/dashboard", isLoggedIn, async (req, res) => {
     try {
-      const accounts = await prisma.account.findMany({
+      const institutions = await prisma.institution.findMany({
         where: { userId: req.user.id },
-        include: { institution: true },
-        orderBy: { createdAt: 'desc' },
+        include: { accounts: { orderBy: { createdAt: "desc" } } },
+        orderBy: { createdAt: "desc" },
       });
+      const accountsCount = institutions.reduce(
+        (sum, inst) => sum + inst.accounts.length,
+        0,
+      );
       res.render("dashboard", {
         title: "Dashboard - LedgerLink",
         user: req.user,
-        accounts,
-        currentPage: 'dashboard'
+        institutions,
+        accountsCount,
+        currentPage: "dashboard",
       });
     } catch (error) {
       logger.error("Dashboard error:", error);
@@ -191,7 +183,11 @@ async function startServer() {
   });
 
   app.get("/settings", isLoggedIn, (req, res) => {
-    res.render("settings", { title: "Settings - LedgerLink", user: req.user, currentPage: 'settings' });
+    res.render("settings", {
+      title: "Settings - LedgerLink",
+      user: req.user,
+      currentPage: "settings",
+    });
   });
 
   app.get("/admin", isLoggedIn, async (req, res) => {
@@ -215,7 +211,7 @@ async function startServer() {
       res.render("admin/stats", {
         title: "Admin Statistics - LedgerLink",
         user: req.user,
-        currentPage: 'admin',
+        currentPage: "admin",
         totalUsers,
         totalInstitutions,
         totalAccounts,

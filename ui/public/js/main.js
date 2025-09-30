@@ -113,6 +113,121 @@ function showNotification(message, type = "info") {
   }, 5000);
 }
 
+// Context menu toggle for institution actions
+function toggleMenu(button) {
+  const menu = button.parentElement.querySelector(".menu");
+  if (!menu) return;
+  const isHidden = menu.classList.contains("hidden");
+  document.querySelectorAll(".menu").forEach((m) => m.classList.add("hidden"));
+  if (isHidden) menu.classList.remove("hidden");
+  // Click outside to close
+  const close = (e) => {
+    if (!menu.contains(e.target) && e.target !== button) {
+      menu.classList.add("hidden");
+      document.removeEventListener("click", close);
+    }
+  };
+  setTimeout(() => document.addEventListener("click", close), 0);
+}
+let pendingDelete = { type: null, id: null };
+
+function deleteInstitution(id) {
+  pendingDelete = { type: "institution", id };
+  openDeleteModal(
+    "Delete Institution",
+    "Are you sure you want to permanently delete this institution and all linked accounts/items? This action cannot be undone.",
+  );
+}
+
+function deleteAccount(id) {
+  pendingDelete = { type: "account", id };
+  openDeleteModal(
+    "Delete Account",
+    "Are you sure you want to permanently delete this account?",
+  );
+}
+
+function openDeleteModal(title, body) {
+  const modal = document.getElementById("delete-modal");
+  if (!modal) return;
+  document.getElementById("delete-modal-title").textContent = title;
+  document.getElementById("delete-modal-body").textContent = body;
+  const forceSection = document.getElementById("force-delete-section");
+  if (forceSection) forceSection.remove();
+  modal.classList.remove("hidden");
+  modal.classList.add("flex");
+}
+
+function closeDeleteModal() {
+  const modal = document.getElementById("delete-modal");
+  if (!modal) return;
+  modal.classList.add("hidden");
+  modal.classList.remove("flex");
+  pendingDelete = { type: null, id: null };
+}
+
+async function confirmDeletion() {
+  if (!pendingDelete.id) return;
+  if (pendingDelete.type === "institution") return performInstitutionDelete(false);
+  if (pendingDelete.type === "account") return performAccountDelete();
+}
+
+async function performInstitutionDelete() {
+  try {
+    const resp = await fetch(`/api/plaid/institution/${pendingDelete.id}`, {
+      method: "DELETE",
+    });
+    if (!resp.ok)
+      throw new Error((await resp.json().catch(() => ({}))).error || "Delete failed");
+    closeDeleteModal();
+    showNotification("Institution deleted", "success");
+    removeInstitutionCard(pendingDelete.id);
+  } catch (e) {
+    showNotification("Error: " + e.message, "error");
+  }
+}
+
+async function performAccountDelete() {
+  try {
+    const resp = await fetch(`/api/plaid/account/${pendingDelete.id}`, {
+      method: "DELETE",
+    });
+    if (!resp.ok)
+      throw new Error((await resp.json().catch(() => ({}))).error || "Delete failed");
+    closeDeleteModal();
+    showNotification("Account deleted", "success");
+    removeAccountRow(pendingDelete.id);
+  } catch (e) {
+    showNotification("Error: " + e.message, "error");
+  }
+}
+
+// Removed undo/restore functionality (hard delete semantics)
+
+function removeInstitutionCard(id) {
+  const btn = document.querySelector(
+    `.card button[onclick*="deleteInstitution('${id}')"]`,
+  );
+  if (btn) {
+    const card = btn.closest(".card");
+    if (card) {
+      card.classList.add("opacity-0", "transition", "duration-300");
+      setTimeout(() => card.remove(), 320);
+    }
+  }
+}
+
+function removeAccountRow(id) {
+  const btn = document.querySelector(`li button[onclick*="deleteAccount('${id}')"]`);
+  if (btn) {
+    const li = btn.closest("li");
+    if (li) {
+      li.classList.add("opacity-0", "transition", "duration-300");
+      setTimeout(() => li.remove(), 320);
+    }
+  }
+}
+
 let plaidLinkHandler = null;
 let plaidScriptLoading = null;
 
@@ -291,3 +406,9 @@ window.linkNewAccount = linkNewAccount;
 window.removeAccount = removeAccount;
 window.triggerManualSync = triggerManualSync;
 window.showNotification = showNotification;
+window.toggleMenu = toggleMenu;
+window.deleteInstitution = deleteInstitution;
+window.deleteAccount = deleteAccount;
+window.closeDeleteModal = closeDeleteModal;
+window.confirmDeletion = confirmDeletion;
+// Removed forceDeleteInstitution & undoSoftDelete exports (hard delete)
