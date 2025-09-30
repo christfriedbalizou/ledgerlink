@@ -18,8 +18,6 @@
     "db:migrate:postgres": "DATABASE_PROVIDER=postgresql node scripts/db-migrate.js",
     "db:migrate:all": "npm run db:migrate:sqlite && npm run db:migrate:postgres",
     "db:bootstrap:postgres": "npm run db:migrate:postgres",
-    "db:dynamic": "echo 'Deprecated: use provider specific schemas (prisma/sqlite|prisma/postgres)' && exit 0",
-    "db:dynamic:fresh": "echo 'Deprecated: use provider specific schemas (prisma/sqlite|prisma/postgres)' && exit 0",
     "db:seed": "node scripts/db-migrate.js && node src/db/seed.js",
     "lint": "eslint . --ext .js",
     "lint:fix": "eslint . --ext .js --fix || true",

@@ -7,6 +7,8 @@
  *
  * If ALL_PROVIDERS=1, iterates all schemas sequentially.
  */
+import 'dotenv/config';
+import { logger } from '../src/utils/logger.js';
 import { execSync } from "node:child_process";
 import { existsSync, readdirSync } from "node:fs";
 
@@ -15,23 +17,31 @@ const schemaMap = {
   postgresql: "prisma/postgres/schema.prisma",
 };
 
+function redactDatabaseUrl(url = "") {
+  return url.replace(/(postgres(?:ql)?:\/\/[^:\s]+):[^@/]+@/i, "$1:***@");
+}
+
 function migrateSingle(provider) {
   const schemaPath = schemaMap[provider];
   if (!schemaPath || !existsSync(schemaPath)) {
-    console.error(`[db-migrate] Missing schema for provider: ${provider}`);
+    logger.error(`[db-migrate] Missing schema for provider: ${provider}`);
     process.exit(1);
   }
   if (provider === "sqlite" && !process.env.DATABASE_URL) {
     process.env.DATABASE_URL = "file:./ledgerlink.db";
-    console.log("[db-migrate] Using default SQLite DATABASE_URL=file:./ledgerlink.db");
+    logger.info("[db-migrate] Using default SQLite DATABASE_URL=file:./ledgerlink.db");
   }
   if (provider === "postgresql" && !process.env.DATABASE_URL) {
     process.env.DATABASE_URL =
       "postgresql://postgres:postgres@localhost:5432/ledgerlink";
-    console.log(
+    logger.info(
       "[db-migrate] Using default Postgres DATABASE_URL=postgresql://postgres:***@localhost:5432/ledgerlink",
     );
   }
+  const redactedUrl = redactDatabaseUrl(process.env.DATABASE_URL || "");
+  logger.info(
+    `[db-migrate] Provider=${provider} Schema=${schemaPath} URL=${redactedUrl || "<unset>"}`,
+  );
   const migrationsDir = schemaPath.replace("schema.prisma", "migrations");
   let hasMigrations = false;
   if (existsSync(migrationsDir)) {
@@ -40,7 +50,7 @@ function migrateSingle(provider) {
   }
   try {
     if (!hasMigrations) {
-      console.log(
+      logger.info(
         `[db-migrate] No migrations for ${provider}. Creating initial migration...`,
       );
       execSync(
@@ -48,18 +58,27 @@ function migrateSingle(provider) {
         { stdio: "inherit" },
       );
     } else {
-      console.log(`[db-migrate] Applying existing migrations for ${provider}...`);
+      logger.info(
+        `[db-migrate] Applying existing migrations for ${provider} (found ${hasMigrations ? "some" : 0})...`,
+      );
       execSync(`npx prisma migrate deploy --schema ${schemaPath}`, {
         stdio: "inherit",
       });
     }
-    console.log(`[db-migrate] Generating Prisma Client (${provider})...`);
+    logger.info(`[db-migrate] Generating Prisma Client (${provider})...`);
     execSync(`npx prisma generate --schema ${schemaPath}`, { stdio: "inherit" });
-    console.log(`[db-migrate] ${provider} done.`);
+    logger.info(
+      `[db-migrate] Done provider=${provider} URL=${redactedUrl} (client generated).`,
+    );
   } catch (e) {
-    console.error(`[db-migrate] Migration failed for ${provider}:`, e.message || e);
+    logger.error(`[db-migrate] Migration failed for ${provider}: ${e.message || e}`);
     process.exit(1);
   }
+}
+
+if (process.env.DEBUG_DB_MIGRATE) {
+  const redactedUrl = (process.env.DATABASE_URL || '').replace(/:(?:[^:@/]+)@/,'://***@');
+  logger.debug(`[db-migrate] DEBUG provider(env): ${process.env.DATABASE_PROVIDER || '<<unset>>'} url: ${redactedUrl || '<<unset>>'}`);
 }
 
 if (process.env.ALL_PROVIDERS) {

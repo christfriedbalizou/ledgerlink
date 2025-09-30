@@ -147,9 +147,16 @@ Repeat similarly for SQLite if you need that provider's migration set.
 
 Currently both schemas are identical. If a provider requires a different type (e.g. `Json` vs `String` fallback), you can apply the change only in one schema file. Make sure application logic stays portable or guards provider-specific behavior.
 
-#### Deprecated: Dynamic Baseline Script
+#### Removed: Dynamic Baseline Script
 
-The previous dynamic on-the-fly baseline generation (`db:dynamic`) is deprecated in favor of clear, versioned migration histories per provider.
+Earlier versions supported an experimental `db:dynamic` flow that generated a one-off baseline migration at runtime. This added complexity and ambiguity, so the script and related wrapper commands have been removed. All migrations now live explicitly under:
+
+```
+prisma/sqlite/migrations
+prisma/postgres/migrations
+```
+
+If you still have old instructions referencing `db:dynamic`, replace them with the appropriate provider-specific `npm run db:migrate:sqlite` or `npm run db:migrate:postgres` commands.
 
 #### Switching Providers After Data Exists
 

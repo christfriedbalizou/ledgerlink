@@ -4,9 +4,7 @@ README.md
 .env.example
 LICENSE
 .gitignore
-prisma/ledgerlink.db
-prisma/schema.prisma
-prisma/schema.template.prisma
+ledgerlink.db
 package-lock.json
 renovate.json
 .github/autoMerge.json5
