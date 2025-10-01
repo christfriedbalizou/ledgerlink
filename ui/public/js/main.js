@@ -205,6 +205,7 @@ async function confirmDeletion() {
 
 async function performInstitutionDelete() {
   try {
+    const instId = pendingDelete.id; // preserve before close resets
     const resp = await fetch(`/api/plaid/institution/${pendingDelete.id}`, {
       method: "DELETE",
     });
@@ -212,7 +213,7 @@ async function performInstitutionDelete() {
       throw new Error((await resp.json().catch(() => ({}))).error || "Delete failed");
     closeDeleteModal();
     showNotification("Institution deleted", "success");
-    removeInstitutionCard(pendingDelete.id);
+    removeInstitutionCard(instId);
   } catch (e) {
     showNotification("Error: " + e.message, "error");
   }
@@ -220,6 +221,7 @@ async function performInstitutionDelete() {
 
 async function performAccountDelete() {
   try {
+    const acctId = pendingDelete.id; // preserve before modal close resets
     const resp = await fetch(`/api/plaid/account/${pendingDelete.id}`, {
       method: "DELETE",
     });
@@ -227,7 +229,7 @@ async function performAccountDelete() {
       throw new Error((await resp.json().catch(() => ({}))).error || "Delete failed");
     closeDeleteModal();
     showNotification("Account deleted", "success");
-    removeAccountRow(pendingDelete.id);
+    removeAccountRow(acctId);
   } catch (e) {
     showNotification("Error: " + e.message, "error");
   }
