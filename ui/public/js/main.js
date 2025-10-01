@@ -146,14 +146,12 @@ function showNotification(message, type = "info") {
   }, 5000);
 }
 
-// Context menu toggle for institution actions
 function toggleMenu(button) {
   const menu = button.parentElement.querySelector(".menu");
   if (!menu) return;
   const isHidden = menu.classList.contains("hidden");
   document.querySelectorAll(".menu").forEach((m) => m.classList.add("hidden"));
   if (isHidden) menu.classList.remove("hidden");
-  // Click outside to close
   const close = (e) => {
     if (!menu.contains(e.target) && e.target !== button) {
       menu.classList.add("hidden");
@@ -201,7 +199,7 @@ function closeDeleteModal() {
 
 async function confirmDeletion() {
   if (!pendingDelete.id) return;
-  if (pendingDelete.type === "institution") return performInstitutionDelete(false);
+  if (pendingDelete.type === "institution") return performInstitutionDelete();
   if (pendingDelete.type === "account") return performAccountDelete();
 }
 
@@ -234,8 +232,6 @@ async function performAccountDelete() {
     showNotification("Error: " + e.message, "error");
   }
 }
-
-// Removed undo/restore functionality (hard delete semantics)
 
 function removeInstitutionCard(id) {
   const btn = document.querySelector(
@@ -342,7 +338,6 @@ async function linkNewAccount() {
     const linkToken = tokenData.link_token || tokenData.linkToken || null;
     if (!linkToken) throw new Error("link_token missing in response");
 
-    // Reinitialize handler each time to ensure fresh token lifecycle
     plaidLinkHandler = window.Plaid.create({
       token: linkToken,
       onSuccess: async (public_token, metadata) => {
@@ -434,7 +429,6 @@ async function triggerManualSync() {
   }
 }
 
-// Expose selected functions globally for inline handlers
 window.linkNewAccount = linkNewAccount;
 window.removeAccount = removeAccount;
 window.triggerManualSync = triggerManualSync;
@@ -444,4 +438,3 @@ window.deleteInstitution = deleteInstitution;
 window.deleteAccount = deleteAccount;
 window.closeDeleteModal = closeDeleteModal;
 window.confirmDeletion = confirmDeletion;
-// Removed forceDeleteInstitution & undoSoftDelete exports (hard delete)
