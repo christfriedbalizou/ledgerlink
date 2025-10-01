@@ -12,17 +12,8 @@ generator client {
 model User {
   id           String        @id @default(uuid())
   email        String        @unique
-  plaidItemId   String
-  plaidAccountId String? @unique
+  is_admin     Boolean       @default(false)
   accounts     Account[]
-  name          String?
-  officialName  String?
-  mask          String? @db.VarChar(8)
-  type          String?
-  subtype       String?
-  balanceAvailable  Float?
-  balanceCurrent    Float?
-  balanceIsoCurrency String?
   plaidItems   PlaidItem[]
   institutions Institution[]
   settings     UserSetting?
@@ -50,13 +41,17 @@ model Institution {
 model Account {
   id            String       @id @default(uuid())
   userId        String
-  plaidItemId   String       @unique
+  plaidItemId   String
+  plaidAccountId String?     @unique
   institutionId String
   name          String?
   officialName  String?
-  mask          String? @db.VarChar(8)
+  mask          String?
   type          String?
   subtype       String?
+  balanceAvailable  Float?
+  balanceCurrent    Float?
+  balanceIsoCurrency String?
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
   user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -76,6 +71,7 @@ model PlaidItem {
   institution      Institution  @relation(fields: [institutionId], references: [id], onDelete: Cascade)
 }
 
+// Per-user settings; falls back to environment defaults if row absent
 model UserSetting {
   id                String   @id @default(uuid())
   userId            String   @unique

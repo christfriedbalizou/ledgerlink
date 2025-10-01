@@ -25,7 +25,7 @@
     "lint:ui:fix": "eslint ui --ext .js --fix",
     "format": "prettier . --write",
     "format:check": "prettier . --check .",
-    "format:sql": "find prisma/migrations -name '*.sql' -print0 | xargs -0 -I{} npx sql-formatter --fix {}",
+  "format:sql": "find prisma/postgres/migrations prisma/sqlite/migrations -name '*.sql' -print0 2>/dev/null | xargs -0 -I{} npx sql-formatter --fix '{}'",
     "format:sql:check": "echo 'Deprecated: use check:sql'",
     "check:sql": "npm run format:sql && git diff --exit-code --quiet || (echo 'SQL formatting issues found. Run npm run format:sql to fix.' && exit 1)",
     "lint:sql": "npm run check:sql",
