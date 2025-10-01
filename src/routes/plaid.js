@@ -111,8 +111,8 @@ router.post("/event", (req, res) => {
 
 router.post("/set-token", async (req, res) => {
   logger.info("/plaid/set-token");
-  const { public_token, institutionName, institutionId, plaidInstitutionId, product } =
-    req.body;
+  const { public_token, institutionName, institutionId, plaidInstitutionId, product, account, accounts } =
+    req.body || {};
   const user = req.user;
   try {
     let effectiveInstitutionId = institutionId;
@@ -216,19 +216,40 @@ router.post("/set-token", async (req, res) => {
         logger.debug("Institution branding update skipped", e.message || e);
       }
     }
-    await Account.createForUser(
-      user.id,
-      {
-        plaidItemId: response.data.item_id,
-        institutionName,
-        institutionId: effectiveInstitutionId || institutionId,
-        plaidInstitutionId,
-      },
-      {
-        maxInstitutionsPerUser: MAX_INSTITUTIONS_PER_USER,
-        maxAccountsPerInstitution: MAX_ACCOUNTS_PER_INSTITUTION,
-      },
-    );
+    const accountPayloads = Array.isArray(accounts) && accounts.length > 0
+      ? accounts
+      : account
+        ? [account]
+        : [];
+
+    for (const acct of accountPayloads) {
+      try {
+        await Account.createForUser(
+          user.id,
+          {
+            plaidItemId: response.data.item_id,
+            institutionName,
+            institutionId: effectiveInstitutionId || institutionId,
+            plaidInstitutionId,
+            name: acct?.name,
+            officialName: acct?.officialName,
+            mask: acct?.mask,
+            type: acct?.type,
+            subtype: acct?.subtype,
+            plaidAccountId: acct?.id || null,
+            balanceAvailable: acct?.balances?.available ?? null,
+            balanceCurrent: acct?.balances?.current ?? null,
+            balanceIsoCurrency: acct?.balances?.iso_currency_code || acct?.balances?.unofficial_currency_code || null,
+          },
+          {
+            maxInstitutionsPerUser: MAX_INSTITUTIONS_PER_USER,
+            maxAccountsPerInstitution: MAX_ACCOUNTS_PER_INSTITUTION,
+          },
+        );
+      } catch (e) {
+        logger.warn(`Account create skipped: ${e.message}`);
+      }
+    }
     logger.info(
       `PlaidItem and Account linked for user ${user.id}, item_id: ${response.data.item_id}, product: ${product}`,
     );

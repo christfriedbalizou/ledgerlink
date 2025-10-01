@@ -79,13 +79,15 @@
                         <% const isData = inst.logo.startsWith('data:'); %>
                         <img src="<%= isData ? inst.logo : ('data:image/png;base64,' + inst.logo) %>" alt="<%= inst.name %> logo" class="h-12 w-12 object-cover" loading="lazy" />
                       <% } else { %>
-                        <span class="text-primary-600 dark:text-primary-300 font-semibold text-lg"><%= inst.name.charAt(0) %></span>
+                        <span class="text-primary-600 dark:text-gray-100 font-semibold text-lg"><%= inst.name.charAt(0) %></span>
                       <% } %>
                     </div>
                     <div>
-                      <h3 class="text-base font-semibold text-gray-900 dark:text-primary-200 group-hover:text-primary-700 dark:group-hover:text-primary-300 transition-colors"><%= inst.name %></h3>
-                      <p class="text-xs text-gray-500 dark:text-gray-400">Institution ID: <%= inst.id %></p>
-                      <p class="mt-1 text-xs text-gray-500 dark:text-gray-400"><span class="font-medium text-primary-600 dark:text-primary-300"><%= inst.accounts.length %></span> account<%= inst.accounts.length !== 1 ? 's' : '' %></p>
+                      <h3 class="text-base font-semibold text-gray-900 dark:text-gray-100 group-hover:text-primary-700 dark:group-hover:text-primary-300 transition-colors"><%= inst.name %></h3>
+                      <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        <span class="inst-account-count font-medium text-primary-600 dark:text-gray-100"><%= inst.accounts.length %></span>
+                        <span class="inst-account-label"> account<%= inst.accounts.length !== 1 ? 's' : '' %></span>
+                      </p>
                     </div>
                   </div>
                   <div class="relative">
@@ -98,12 +100,30 @@
                   </div>
                 </div>
                 <% if (inst.accounts.length > 0) { %>
-                  <ul class="mt-5 divide-y divide-gray-200 dark:divide-gray-700 border border-gray-100 dark:border-gray-700 rounded-md">
+                  <ul class="mt-5 divide-y divide-gray-200 dark:divide-gray-700 border border-gray-100 dark:border-gray-700 rounded-md institution-accounts-list">
                     <% inst.accounts.forEach(acc => { %>
-                      <li class="p-4 flex items-center justify-between">
-                        <div>
-                          <p class="text-sm font-medium text-gray-900">Account • <span class="text-gray-500">Item: <%= acc.plaidItemId %></span></p>
-                          <p class="mt-1 text-xs text-gray-500">Created <%= new Date(acc.createdAt).toLocaleDateString() %></p>
+                      <li class="p-4 flex items-center justify-between" data-account-id="<%= acc.id %>">
+                        <div class="space-y-1">
+                          <p class="text-sm font-medium text-gray-100">
+                            <%= acc.name || acc.officialName || 'Account' %>
+                            <% if (acc.mask) { %>
+                              <span class="text-gray-500 pl-4 font-normal"> •••• <%= acc.mask %></span>
+                            <% } %>
+                          </p>
+                          <p class="text-xs text-gray-500">
+                            <% if (acc.type) { %>
+                              <span class="uppercase tracking-wide"><%= acc.type %><% if (acc.subtype) { %>/<%= acc.subtype %><% } %></span>
+                            <% } %>
+                          </p>
+                          <% if (acc.balanceCurrent !== null && acc.balanceCurrent !== undefined) { %>
+                            <p class="text-xs text-gray-600 dark:text-gray-400">
+                              Balance: <span class="font-semibold"><%= acc.balanceCurrent.toLocaleString(undefined, { style: 'currency', currency: acc.balanceIsoCurrency || 'USD' }) %></span>
+                              <% if (acc.balanceAvailable !== null && acc.balanceAvailable !== undefined && acc.balanceAvailable !== acc.balanceCurrent) { %>
+                                <span class="text-gray-500">(Available <%= acc.balanceAvailable.toLocaleString(undefined, { style: 'currency', currency: acc.balanceIsoCurrency || 'USD' }) %>)</span>
+                              <% } %>
+                            </p>
+                          <% } %>
+                          <p class="text-xs text-gray-500">Created <%= new Date(acc.createdAt).toLocaleDateString() %></p>
                         </div>
                         <div class="flex items-center space-x-3">
                           <span class="status-success">Active</span>

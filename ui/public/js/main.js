@@ -240,8 +240,35 @@ function removeInstitutionCard(id) {
   if (btn) {
     const card = btn.closest(".card");
     if (card) {
+      // Count accounts in this institution before removal
+      const accountsList = card.querySelector(".institution-accounts-list");
+      const accountCount = accountsList
+        ? accountsList.querySelectorAll("li").length
+        : 0;
       card.classList.add("opacity-0", "transition", "duration-300");
-      setTimeout(() => card.remove(), 320);
+      setTimeout(() => {
+        card.remove();
+        // Update global account stats by subtracting accountCount
+        decrementGlobalAccountCount(accountCount);
+      }, 320);
+    }
+  }
+}
+
+function decrementGlobalAccountCount(n) {
+  // Find the dt with text "Connected Accounts" then its nextElementSibling (dd)
+  const dts = document.querySelectorAll("dl dt.text-sm.font-medium");
+  for (const dt of dts) {
+    if (
+      dt.textContent.trim() === "Connected Accounts" &&
+      dt.nextElementSibling &&
+      dt.nextElementSibling.tagName === "DD"
+    ) {
+      const dd = dt.nextElementSibling;
+      const current = parseInt(dd.textContent, 10);
+      const next = Math.max(0, current - n);
+      dd.textContent = next;
+      break;
     }
   }
 }
@@ -252,8 +279,44 @@ function removeAccountRow(id) {
     const li = btn.closest("li");
     if (li) {
       li.classList.add("opacity-0", "transition", "duration-300");
-      setTimeout(() => li.remove(), 320);
+      const card = li.closest(".card");
+      setTimeout(() => {
+        li.remove();
+        if (card) {
+          updateInstitutionAccountCount(card);
+        }
+      }, 320);
     }
+  }
+}
+
+function updateInstitutionAccountCount(card) {
+  try {
+    const list = card.querySelector(".institution-accounts-list");
+    const countSpan = card.querySelector(".inst-account-count");
+    const labelSpan = card.querySelector(".inst-account-label");
+    if (!countSpan) return;
+    const remaining = list ? list.querySelectorAll("li").length : 0;
+    countSpan.textContent = remaining;
+    if (labelSpan) {
+      labelSpan.textContent = remaining === 1 ? " account" : " accounts";
+    }
+    if (remaining === 0) {
+      // Replace the now-empty list with a placeholder message if not already present
+      if (list) {
+        list.remove();
+      }
+      if (!card.querySelector(".no-accounts-msg")) {
+        const msg = document.createElement("p");
+        msg.className = "mt-4 text-sm text-gray-500 no-accounts-msg";
+        msg.textContent = "No accounts yet for this institution.";
+        card.appendChild(msg);
+      }
+    }
+    // Refresh global account stats counter at top without full reload
+    fetchAccountStats();
+  } catch (e) {
+    console.warn("Failed to update institution account count", e);
   }
 }
 
@@ -347,6 +410,18 @@ async function linkNewAccount() {
           const plaidInstitutionId = metadata.institution?.institution_id || null;
           const product =
             (metadata?.products && metadata.products[0]) || "transactions";
+          // Capture all accounts metadata if present
+          const accountsPayload = Array.isArray(metadata.accounts)
+            ? metadata.accounts.map((a) => ({
+                id: a.id,
+                name: a.name,
+                officialName: a.official_name,
+                mask: a.mask,
+                type: a.type,
+                subtype: a.subtype,
+                balances: a.balances || {},
+              }))
+            : [];
           const resp = await fetch("/api/plaid/set-token", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -355,6 +430,7 @@ async function linkNewAccount() {
               institutionName,
               plaidInstitutionId,
               product,
+              accounts: accountsPayload,
             }),
           });
           if (!resp.ok) {
@@ -438,3 +514,4 @@ window.deleteInstitution = deleteInstitution;
 window.deleteAccount = deleteAccount;
 window.closeDeleteModal = closeDeleteModal;
 window.confirmDeletion = confirmDeletion;
+window.updateInstitutionAccountCount = updateInstitutionAccountCount;

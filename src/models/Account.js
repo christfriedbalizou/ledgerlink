@@ -76,10 +76,24 @@ class Account {
       institutionName: _n,
       plaidInstitutionId: _pi,
       institutionId: _inputInstitutionId, // we already resolved to institutionId variable
+      name,
+      officialName,
+      mask,
+      type,
+      subtype,
       ...rest
     } = accountData; // strip extraneous / unused
     return prisma.account.create({
-      data: { ...rest, userId, institutionId },
+      data: {
+        ...rest,
+        userId,
+        institutionId,
+        name: name || null,
+        officialName: officialName || null,
+        mask: mask || null,
+        type: type || null,
+        subtype: subtype || null,
+      },
     });
   }
 
@@ -88,7 +102,11 @@ class Account {
   }
 
   static async findByPlaidItemId(plaidItemId) {
-    return prisma.account.findFirst({ where: { plaidItemId } });
+    return prisma.account.findMany({ where: { plaidItemId } });
+  }
+
+  static async findByPlaidAccountId(plaidAccountId) {
+    return prisma.account.findUnique({ where: { plaidAccountId } });
   }
 }
 
