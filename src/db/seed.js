@@ -14,12 +14,14 @@ async function main() {
     data: {
       email: "admin@example.com",
       is_admin: true,
+      active: true,
     },
   });
   const user = await prisma.user.create({
     data: {
       email: "user@example.com",
       is_admin: false,
+      active: true,
     },
   });
 

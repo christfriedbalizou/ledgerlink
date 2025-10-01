@@ -16,7 +16,9 @@ class User {
   }
 
   static async create(userData) {
-    return prisma.user.create({ data: userData });
+    const data = { active: true, ...userData };
+    if (data.active === undefined || data.active === null) data.active = true;
+    return prisma.user.create({ data });
   }
 
   static async adminExists() {
@@ -31,7 +33,9 @@ class User {
     const adminExists = await this.adminExists();
     const isAdmin = !adminExists;
     try {
-      return await prisma.user.create({ data: { email, is_admin: isAdmin } });
+      return await prisma.user.create({
+        data: { email, is_admin: isAdmin, active: true },
+      });
     } catch (err) {
       if (err?.code === "P2002") {
         return await this.findByEmail(email);

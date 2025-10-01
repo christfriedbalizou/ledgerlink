@@ -15,7 +15,7 @@ describe("Institution Branding", () => {
     await prisma.institution.deleteMany();
     await prisma.user.deleteMany();
     user = await prisma.user.create({
-      data: { email: `branding-${Date.now()}@example.com` },
+      data: { email: `branding-${Date.now()}@example.com`, active: true },
     });
   });
 

@@ -22,6 +22,7 @@ describe("User Model", () => {
     const user = await User.create(userData);
     expect(user).toHaveProperty("id");
     expect(user.email).toBe(userData.email);
+    expect(user.active).toBe(true);
   });
 
   it("should find a user by email", async () => {
@@ -30,6 +31,7 @@ describe("User Model", () => {
     const user = await User.findByEmail(userData.email);
     expect(user).not.toBeNull();
     expect(user.email).toBe(userData.email);
+    expect(user.active).toBe(true);
   });
 
   it("should check if admin exists", async () => {

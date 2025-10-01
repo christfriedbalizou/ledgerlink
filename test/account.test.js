@@ -8,8 +8,9 @@ describe("Account Model (Institution + Per-Institution Limits)", () => {
     await prisma.account.deleteMany();
     await prisma.user.deleteMany();
     user = await prisma.user.create({
-      data: { email: "testuser@example.com", is_admin: false },
+      data: { email: "testuser@example.com", is_admin: false, active: true },
     });
+    expect(user.active).toBe(true);
   });
 
   afterAll(async () => {

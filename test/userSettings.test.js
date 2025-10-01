@@ -13,7 +13,7 @@ function buildApp() {
       if (email) {
         let user = await prisma.user.findUnique({ where: { email } });
         if (!user) {
-          user = await prisma.user.create({ data: { email } });
+          user = await prisma.user.create({ data: { email, active: true } });
         }
         req.user = user;
       }

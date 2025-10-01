@@ -88,7 +88,7 @@ describe("Plaid Integration (Sandbox)", () => {
     let user;
     beforeEach(async () => {
       user = await prisma.user.create({
-        data: { email: `inst-del-${Date.now()}@example.com` },
+        data: { email: `inst-del-${Date.now()}@example.com`, active: true },
       });
       userApp = express();
       userApp.use(express.json());
@@ -182,7 +182,7 @@ describe("Plaid Integration (Sandbox)", () => {
     const testProduct = envProducts[0];
     // Insert user
     const user = await prisma.user.create({
-      data: { id: userId, email: `${userId}@example.com` },
+      data: { id: userId, email: `${userId}@example.com`, active: true },
     });
     // Mock req.user for this test
     const appWithUser = express();
@@ -217,7 +217,7 @@ describe("Plaid Integration (Sandbox)", () => {
 
   it("should create and find a PlaidItem directly (model test)", async () => {
     const user = await prisma.user.create({
-      data: { email: `plaiditemtest-${Date.now()}@example.com` },
+      data: { email: `plaiditemtest-${Date.now()}@example.com`, active: true },
     });
     const itemData = {
       plaidItemId: `item-${Date.now()}`,

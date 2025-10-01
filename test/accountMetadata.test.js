@@ -10,7 +10,10 @@ describe("Account metadata persistence", () => {
     await prisma.plaidItem.deleteMany();
     await prisma.institution.deleteMany();
     await prisma.user.deleteMany();
-    user = await prisma.user.create({ data: { email: "meta@example.com" } });
+    user = await prisma.user.create({
+      data: { email: "meta@example.com", active: true },
+    });
+    expect(user.active).toBe(true);
     institution = await prisma.institution.create({
       data: { userId: user.id, plaidInstitutionId: "ins_meta", name: "Meta Bank" },
     });

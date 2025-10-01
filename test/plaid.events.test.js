@@ -12,7 +12,7 @@ describe("Plaid Event Logging Endpoint", () => {
 
   beforeAll(async () => {
     user = await prisma.user.create({
-      data: { email: `events-${Date.now()}@example.com` },
+      data: { email: `events-${Date.now()}@example.com`, active: true },
     });
     app = express();
     app.use(express.json());
