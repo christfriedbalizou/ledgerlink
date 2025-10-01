@@ -319,6 +319,20 @@ async function startServer() {
       ]);
       // Placeholder sync status logic (can be replaced with real status)
       const syncStatus = "Operational";
+      const generalSettings = {
+        NODE_ENV: process.env.NODE_ENV || null,
+        BASE_URL: process.env.BASE_URL || null,
+        DATABASE_PROVIDER: process.env.DATABASE_PROVIDER || null,
+        MAX_INSTITUTIONS_PER_USER: process.env.MAX_INSTITUTIONS_PER_USER || null,
+        MAX_ACCOUNTS_PER_INSTITUTION: process.env.MAX_ACCOUNTS_PER_INSTITUTION || null,
+        ENABLE_ACTUAL: process.env.ENABLE_ACTUAL || null,
+      };
+      const plaidSettings = {
+        PLAID_PRODUCTS: process.env.PLAID_PRODUCTS || null,
+        PLAID_COUNTRY_CODES: process.env.PLAID_COUNTRY_CODES || null,
+        PLAID_LANGUAGE: process.env.PLAID_LANGUAGE || null,
+        PLAID_ENV: process.env.PLAID_ENV || null,
+      };
       res.render("admin/stats", {
         title: "Admin Statistics - LedgerLink",
         user: req.user,
@@ -327,6 +341,8 @@ async function startServer() {
         totalInstitutions,
         totalAccounts,
         syncStatus,
+        generalSettings,
+        plaidSettings,
       });
     } catch (e) {
       logger.error("Admin stats error:", e);
