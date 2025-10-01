@@ -1,0 +1,237 @@
+<main class="px-4 py-6 sm:px-6 lg:px-8">
+  <div class="max-w-6xl mx-auto space-y-6">
+    <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+      <div class="space-y-1">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">User Management</h1>
+        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Search, filter, paginate and toggle user activation state.</p>
+      </div>
+      <div class="flex gap-2">
+        <button id="refresh-users" class="btn btn-secondary text-sm">Refresh</button>
+      </div>
+    </div>
+
+    <div class="card p-4 space-y-3">
+      <form id="user-filters" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-5 items-end">
+        <div class="flex flex-col">
+          <label class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1" for="search">Search</label>
+          <input id="search" name="search" type="text" placeholder="Email contains..." value="<%= (meta && meta.search) || '' %>" class="input input-sm" />
+        </div>
+        <div class="flex flex-col">
+          <label class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1" for="active">Active</label>
+          <select id="active" name="active" class="input input-sm">
+            <option value="all" <%= ((meta && meta.activeFilter)||'all')==='all'?'selected':'' %>>All</option>
+            <option value="active" <%= (meta && meta.activeFilter)==='active'?'selected':'' %>>Active</option>
+            <option value="inactive" <%= (meta && meta.activeFilter)==='inactive'?'selected':'' %>>Inactive</option>
+          </select>
+        </div>
+        <div class="flex flex-col">
+          <label class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1" for="role">Role</label>
+            <select id="role" name="role" class="input input-sm">
+              <option value="all" <%= ((meta && meta.roleFilter)||'all')==='all'?'selected':'' %>>All</option>
+              <option value="admin" <%= (meta && meta.roleFilter)==='admin'?'selected':'' %>>Admins</option>
+              <option value="user" <%= (meta && meta.roleFilter)==='user'?'selected':'' %>>Users</option>
+            </select>
+        </div>
+        <div class="flex flex-col">
+          <label class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1" for="pageSize">Page Size</label>
+          <select id="pageSize" name="pageSize" class="input input-sm">
+            <% [10,25,50,100].forEach(s => { %>
+              <option value="<%= s %>" <%= ((meta && meta.pageSize)||25)==s?'selected':'' %>><%= s %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="flex gap-2 sm:col-span-2 lg:col-span-1">
+          <button type="submit" class="btn btn-primary btn-sm w-full">Apply</button>
+          <button type="button" id="clear-filters" class="btn btn-secondary btn-sm w-full">Reset</button>
+        </div>
+      </form>
+      <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400" id="users-meta-bar">
+        <div>
+          Showing <span id="meta-range-start"></span>-<span id="meta-range-end"></span> of <span id="meta-total"></span>
+        </div>
+        <div class="flex gap-1" id="pagination-controls"></div>
+      </div>
+    </div>
+
+    <div class="card overflow-x-auto">
+  <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm" id="users-table" data-page="<%= (meta && meta.page) || 1 %>">
+        <thead class="bg-gray-50 dark:bg-gray-700/50">
+          <tr>
+            <th class="px-4 py-2 text-left font-medium text-gray-600 dark:text-gray-300">Email</th>
+            <th class="px-4 py-2 text-left font-medium text-gray-600 dark:text-gray-300">Admin</th>
+            <th class="px-4 py-2 text-left font-medium text-gray-600 dark:text-gray-300">Active</th>
+            <th class="px-4 py-2 text-left font-medium text-gray-600 dark:text-gray-300">Created</th>
+            <th class="px-4 py-2 text-left font-medium text-gray-600 dark:text-gray-300">Action</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100 dark:divide-gray-800" id="users-tbody">
+          <% (users || []).forEach(u => { %>
+            <tr data-user-id="<%= u.id %>">
+              <td class="px-4 py-2 font-mono"><%= u.email %></td>
+              <td class="px-4 py-2"><span class="<%= u.is_admin ? 'text-indigo-600 dark:text-indigo-400 font-semibold' : 'text-gray-500' %>"><%= u.is_admin ? 'Yes' : 'No' %></span></td>
+              <td class="px-4 py-2"><span class="status-pill <%= u.active ? 'bg-green-100 text-green-700 dark:bg-green-700/30 dark:text-green-300' : 'bg-red-100 text-red-700 dark:bg-red-700/30 dark:text-red-300' %>"><%= u.active ? 'Active' : 'Inactive' %></span></td>
+              <td class="px-4 py-2 text-gray-500 dark:text-gray-400"><%= new Date(u.createdAt).toLocaleString() %></td>
+              <td class="px-4 py-2">
+                <button class="toggle-active btn btn-xs <%= u.active ? 'btn-danger-outline' : 'btn-success' %>">
+                  <%= u.active ? 'Deactivate' : 'Activate' %>
+                </button>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+      <p id="empty-state" class="p-4 text-center text-sm text-gray-500 dark:text-gray-400 <%= (users||[]).length ? 'hidden' : '' %>">No users found.</p>
+    </div>
+  </div>
+  <script id="initial-users-meta" type="application/json"><%- JSON.stringify(meta || {}) %></script>
+  <script>
+    (function(){
+  const tbody = document.getElementById('users-tbody');
+      const refreshBtn = document.getElementById('refresh-users');
+      const emptyState = document.getElementById('empty-state');
+      const filterForm = document.getElementById('user-filters');
+      const paginationControls = document.getElementById('pagination-controls');
+      const metaRangeStart = document.getElementById('meta-range-start');
+      const metaRangeEnd = document.getElementById('meta-range-end');
+      const metaTotal = document.getElementById('meta-total');
+      const clearFiltersBtn = document.getElementById('clear-filters');
+      function loadInitialMeta(){
+        try {
+          const el = document.getElementById('initial-users-meta');
+          if(!el) return {};
+          return JSON.parse(el.textContent || '{}');
+        } catch { return {}; }
+      }
+      let currentMeta = loadInitialMeta();
+      if(!currentMeta || typeof currentMeta !== 'object') currentMeta = {};
+      if(typeof currentMeta.page !== 'number' || currentMeta.page < 1) currentMeta.page = 1;
+      if(typeof currentMeta.pageSize !== 'number' || currentMeta.pageSize < 1) currentMeta.pageSize = 25;
+      if(typeof currentMeta.total !== 'number') currentMeta.total = (Array.isArray(currentMeta.users) ? currentMeta.users.length : 0);
+      if(typeof currentMeta.totalPages !== 'number') currentMeta.totalPages = Math.max(1, Math.ceil(currentMeta.total / currentMeta.pageSize));
+      currentMeta.search = currentMeta.search || '';
+      currentMeta.activeFilter = currentMeta.activeFilter || 'all';
+      currentMeta.roleFilter = currentMeta.roleFilter || 'all';
+
+      function qs(obj){
+        const params = new URLSearchParams();
+        Object.entries(obj).forEach(([k,v])=>{
+          if(v!==undefined && v!==null && v!=='') params.set(k,v);
+        });
+        return params.toString();
+      }
+
+      async function fetchUsers(page){
+        if(page) currentMeta.page = page;
+        refreshBtn.disabled = true; refreshBtn.textContent = 'Loading...';
+        const query = {
+          page: currentMeta.page,
+          pageSize: currentMeta.pageSize,
+          search: filterForm.search.value.trim(),
+          active: filterForm.active.value,
+            role: filterForm.role.value
+        };
+        try {
+          const res = await fetch('/admin/api/users?' + qs(query));
+          if(!res.ok) throw new Error('Failed to load users');
+          const data = await res.json();
+          currentMeta = { ...data.meta };
+          renderUsers(data.users || []);
+          renderMeta();
+          updateUrl();
+        } catch(e){
+          alert('Failed to load users');
+        } finally { refreshBtn.disabled = false; refreshBtn.textContent = 'Refresh'; }
+      }
+
+      function renderUsers(users){
+        tbody.innerHTML = '';
+        if(!users.length){ emptyState.classList.remove('hidden'); return; }
+        emptyState.classList.add('hidden');
+        users.forEach(u => {
+          const tr = document.createElement('tr'); tr.dataset.userId = u.id;
+          tr.innerHTML = `
+            <td class="px-4 py-2 font-mono">${u.email}</td>
+            <td class="px-4 py-2"><span class="${u.is_admin ? 'text-indigo-600 dark:text-indigo-400 font-semibold':'text-gray-500'}">${u.is_admin ? 'Yes':'No'}</span></td>
+            <td class="px-4 py-2"><span class="status-pill ${u.active ? 'bg-green-100 text-green-700 dark:bg-green-700/30 dark:text-green-300':'bg-red-100 text-red-700 dark:bg-red-700/30 dark:text-red-300'}">${u.active ? 'Active':'Inactive'}</span></td>
+            <td class="px-4 py-2 text-gray-500 dark:text-gray-400">${new Date(u.createdAt).toLocaleString()}</td>
+            <td class="px-4 py-2"><button class="toggle-active btn btn-xs ${u.active ? 'btn-danger-outline':'btn-success'}">${u.active ? 'Deactivate':'Activate'}</button></td>`;
+          tbody.appendChild(tr);
+        });
+      }
+
+      function renderMeta(){
+        const start = currentMeta.total === 0 ? 0 : ((currentMeta.page - 1) * currentMeta.pageSize) + 1;
+        const end = Math.min(currentMeta.total, currentMeta.page * currentMeta.pageSize);
+        metaRangeStart.textContent = start;
+        metaRangeEnd.textContent = end;
+        metaTotal.textContent = currentMeta.total;
+        paginationControls.innerHTML = '';
+        const maxButtons = 7;
+        let startPage = Math.max(1, currentMeta.page - Math.floor(maxButtons/2));
+        let endPage = startPage + maxButtons - 1;
+        if(endPage > currentMeta.totalPages){
+          endPage = currentMeta.totalPages;
+          startPage = Math.max(1, endPage - maxButtons + 1);
+        }
+        const addBtn = (label, page, disabled=false, active=false) => {
+          const btn = document.createElement('button');
+          btn.type='button';
+          btn.textContent = label;
+          btn.className = 'btn btn-xs ' + (active ? 'btn-primary' : 'btn-secondary-outline');
+          if(disabled){ btn.disabled = true; btn.classList.add('opacity-50'); }
+          btn.addEventListener('click', ()=> fetchUsers(page));
+          paginationControls.appendChild(btn);
+        };
+        addBtn('⟨', Math.max(1, currentMeta.page - 1), currentMeta.page===1);
+        for(let p=startPage; p<=endPage; p++) addBtn(String(p), p, false, p===currentMeta.page);
+        addBtn('⟩', Math.min(currentMeta.totalPages, currentMeta.page + 1), currentMeta.page===currentMeta.totalPages);
+      }
+
+      function updateUrl(){
+        const query = {
+          page: currentMeta.page,
+          pageSize: currentMeta.pageSize,
+          search: filterForm.search.value.trim(),
+          active: filterForm.active.value,
+          role: filterForm.role.value
+        };
+        const qsStr = qs(query);
+        const newUrl = window.location.pathname + (qsStr ? ('?' + qsStr) : '');
+        window.history.replaceState({}, '', newUrl);
+      }
+
+      tbody.addEventListener('click', async (e)=>{
+        const btn = e.target.closest('button.toggle-active');
+        if(!btn) return;
+        const tr = btn.closest('tr');
+        const id = tr.dataset.userId;
+        btn.disabled = true; btn.textContent = 'Saving...';
+        try {
+          const res = await fetch(`/admin/api/users/${id}/active`, { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify({}) });
+          if(!res.ok){ throw new Error('Failed'); }
+          const { user } = await res.json();
+          // update row only
+          tr.querySelector('td:nth-child(3) span').className = `status-pill ${user.active ? 'bg-green-100 text-green-700 dark:bg-green-700/30 dark:text-green-300':'bg-red-100 text-red-700 dark:bg-red-700/30 dark:text-red-300'}`;
+          tr.querySelector('td:nth-child(3) span').textContent = user.active ? 'Active':'Inactive';
+          btn.className = `toggle-active btn btn-xs ${user.active ? 'btn-danger-outline':'btn-success'}`;
+          btn.textContent = user.active ? 'Deactivate':'Activate';
+        } catch(err){
+          alert('Toggle failed');
+        } finally { btn.disabled = false; }
+      });
+
+      refreshBtn.addEventListener('click', ()=> fetchUsers());
+      filterForm.addEventListener('submit', (e)=>{ e.preventDefault(); currentMeta.page = 1; currentMeta.pageSize = parseInt(filterForm.pageSize.value,10); fetchUsers(); });
+      clearFiltersBtn.addEventListener('click', ()=> {
+        filterForm.search.value='';
+        filterForm.active.value='all';
+        filterForm.role.value='all';
+        filterForm.pageSize.value='25';
+        currentMeta.page=1; currentMeta.pageSize=25; fetchUsers();
+      });
+
+      // Hydrate meta display for initial SSR batch
+      renderMeta();
+    })();
+  </script>
+</main>

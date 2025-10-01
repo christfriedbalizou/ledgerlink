@@ -11,6 +11,7 @@
             <a href="/settings" class="px-2 py-1 rounded-md <%= currentPage==='settings' ? 'bg-primary-100 text-primary-700 dark:bg-primary-800/40 dark:text-primary-200' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white' %>">Settings</a>
             <% if (user.is_admin) { %>
               <a href="/admin" class="px-2 py-1 rounded-md <%= currentPage==='admin' ? 'bg-primary-100 text-primary-700 dark:bg-primary-800/40 dark:text-primary-200' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white' %>">Admin</a>
+              <a href="/admin/users" class="px-2 py-1 rounded-md <%= currentPage==='admin-users' ? 'bg-primary-100 text-primary-700 dark:bg-primary-800/40 dark:text-primary-200' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white' %>">Users</a>
             <% } %>
           </nav>
         <% } %>

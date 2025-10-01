@@ -13,6 +13,7 @@ import { isLoggedIn } from "./middleware/auth.js";
 import User from "./models/User.js";
 import authRoutes from "./routes/auth.js";
 import plaidRouter from "./routes/plaid.js";
+import adminRouter from "./routes/admin.js";
 import { logger } from "./utils/logger.js";
 import { isLoggedIn as requireAuth } from "./middleware/auth.js";
 
@@ -173,6 +174,7 @@ async function startServer() {
 
   app.use("/auth", authRoutes);
   app.use("/api/plaid", isLoggedIn, plaidRouter);
+  app.use("/admin", isLoggedIn, adminRouter);
 
   // User settings APIs
   const DEFAULT_ENABLE_ACTUAL = /^true$/i.test(process.env.ENABLE_ACTUAL || "false");
@@ -301,60 +303,7 @@ async function startServer() {
     });
   });
 
-  app.get("/admin", isLoggedIn, async (req, res) => {
-    if (!req.user?.is_admin) {
-      return res.status(403).render("error", {
-        title: "Access Denied - LedgerLink",
-        user: req.user,
-        status: 403,
-        message: "Access Denied",
-        details: "You must be an administrator to access this page.",
-      });
-    }
-    try {
-      const [totalUsers, totalInstitutions, totalAccounts] = await Promise.all([
-        prisma.user.count(),
-        prisma.institution.count(),
-        prisma.account.count(),
-      ]);
-      // Placeholder sync status logic (can be replaced with real status)
-      const syncStatus = "Operational";
-      const generalSettings = {
-        NODE_ENV: process.env.NODE_ENV || null,
-        BASE_URL: process.env.BASE_URL || null,
-        DATABASE_PROVIDER: process.env.DATABASE_PROVIDER || null,
-        MAX_INSTITUTIONS_PER_USER: process.env.MAX_INSTITUTIONS_PER_USER || null,
-        MAX_ACCOUNTS_PER_INSTITUTION: process.env.MAX_ACCOUNTS_PER_INSTITUTION || null,
-        ENABLE_ACTUAL: process.env.ENABLE_ACTUAL || null,
-      };
-      const plaidSettings = {
-        PLAID_PRODUCTS: process.env.PLAID_PRODUCTS || null,
-        PLAID_COUNTRY_CODES: process.env.PLAID_COUNTRY_CODES || null,
-        PLAID_LANGUAGE: process.env.PLAID_LANGUAGE || null,
-        PLAID_ENV: process.env.PLAID_ENV || null,
-      };
-      res.render("admin/stats", {
-        title: "Admin Statistics - LedgerLink",
-        user: req.user,
-        currentPage: "admin",
-        totalUsers,
-        totalInstitutions,
-        totalAccounts,
-        syncStatus,
-        generalSettings,
-        plaidSettings,
-      });
-    } catch (e) {
-      logger.error("Admin stats error:", e);
-      res.status(500).render("error", {
-        title: "Error - LedgerLink",
-        user: req.user,
-        status: 500,
-        message: "Internal Server Error",
-        details: "Unable to load admin statistics",
-      });
-    }
-  });
+  // /admin routes now handled by adminRouter (mounted above)
 
   app.use((req, res) => {
     res.status(404).render("error", {
