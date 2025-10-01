@@ -111,8 +111,15 @@ router.post("/event", (req, res) => {
 
 router.post("/set-token", async (req, res) => {
   logger.info("/plaid/set-token");
-  const { public_token, institutionName, institutionId, plaidInstitutionId, product, account, accounts } =
-    req.body || {};
+  const {
+    public_token,
+    institutionName,
+    institutionId,
+    plaidInstitutionId,
+    product,
+    account,
+    accounts,
+  } = req.body || {};
   const user = req.user;
   try {
     let effectiveInstitutionId = institutionId;
@@ -216,11 +223,12 @@ router.post("/set-token", async (req, res) => {
         logger.debug("Institution branding update skipped", e.message || e);
       }
     }
-    const accountPayloads = Array.isArray(accounts) && accounts.length > 0
-      ? accounts
-      : account
-        ? [account]
-        : [];
+    const accountPayloads =
+      Array.isArray(accounts) && accounts.length > 0
+        ? accounts
+        : account
+          ? [account]
+          : [];
 
     for (const acct of accountPayloads) {
       try {
@@ -239,7 +247,10 @@ router.post("/set-token", async (req, res) => {
             plaidAccountId: acct?.id || null,
             balanceAvailable: acct?.balances?.available ?? null,
             balanceCurrent: acct?.balances?.current ?? null,
-            balanceIsoCurrency: acct?.balances?.iso_currency_code || acct?.balances?.unofficial_currency_code || null,
+            balanceIsoCurrency:
+              acct?.balances?.iso_currency_code ||
+              acct?.balances?.unofficial_currency_code ||
+              null,
           },
           {
             maxInstitutionsPerUser: MAX_INSTITUTIONS_PER_USER,
