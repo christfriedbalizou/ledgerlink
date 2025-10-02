@@ -5,26 +5,54 @@
       <p class="mt-1 text-sm text-gray-600">Manage your account preferences</p>
     </div>
     <div class="card mb-8">
-      <h2 class="text-lg font-medium text-gray-900 mb-6 dark:text-primary-200">Profile</h2>
+      <h2 class="text-lg font-medium text-gray-900 mb-6 dark:text-primary-200">
+        Profile
+      </h2>
       <div class="space-y-6">
         <div>
-          <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-          <input type="email" id="email" value="<%= user.email %>" disabled class="mt-1 input-field bg-gray-50">
+          <label for="email" class="block text-sm font-medium text-gray-700"
+            >Email</label
+          >
+          <input
+            type="email"
+            id="email"
+            value="<%= user.email %>"
+            disabled
+            class="mt-1 input-field bg-gray-50"
+          />
           <p class="mt-2 text-sm text-gray-500">Managed by your identity provider</p>
         </div>
       </div>
     </div>
     <form id="settings-form" class="card mb-8 space-y-6">
-      <h2 class="text-lg font-medium text-gray-900 dark:text-primary-200">Syncing Preferences</h2>
+      <h2 class="text-lg font-medium text-gray-900 dark:text-primary-200">
+        Syncing Preferences
+      </h2>
       <fieldset>
         <div class="space-y-4">
           <div class="flex items-center">
-            <input id="integration-actual" name="integrationPreference" value="actual" type="radio" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300">
-            <label for="integration-actual" class="ml-3 text-sm text-gray-700">Actual Budget Integration</label>
+            <input
+              id="integration-actual"
+              name="integrationPreference"
+              value="actual"
+              type="radio"
+              class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300"
+            />
+            <label for="integration-actual" class="ml-3 text-sm text-gray-700"
+              >Actual Budget Integration</label
+            >
           </div>
           <div class="flex items-center pt-2">
-            <input id="integration-email" name="integrationPreference" value="email" type="radio" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300">
-            <label for="integration-email" class="ml-3 text-sm text-gray-700">Email CSV Exports</label>
+            <input
+              id="integration-email"
+              name="integrationPreference"
+              value="email"
+              type="radio"
+              class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300"
+            />
+            <label for="integration-email" class="ml-3 text-sm text-gray-700"
+              >Email CSV Exports</label
+            >
           </div>
         </div>
       </fieldset>
@@ -34,13 +62,13 @@
       </div>
     </form>
     <script>
-      document.addEventListener('DOMContentLoaded', async () => {
+      document.addEventListener("DOMContentLoaded", async () => {
         try {
-          const resp = await fetch('/api/user/settings');
+          const resp = await fetch("/api/user/settings");
           if (!resp.ok) return;
           const data = await resp.json();
-          const radioActual = document.getElementById('integration-actual');
-          const radioEmail = document.getElementById('integration-email');
+          const radioActual = document.getElementById("integration-actual");
+          const radioEmail = document.getElementById("integration-email");
           if (data.enableActual) {
             if (radioActual) radioActual.checked = true;
           } else if (data.enableEmailExport) {

@@ -4,5 +4,6 @@
   "trailingComma": "all",
   "printWidth": 88,
   "tabWidth": 2,
-  "arrowParens": "always"
+  "arrowParens": "always",
+  "plugins": ["prettier-plugin-ejs"]
 }

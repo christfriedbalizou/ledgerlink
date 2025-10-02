@@ -2,33 +2,65 @@
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex h-16 items-center justify-between">
       <div class="flex items-center space-x-6">
-        <a href="/" class="flex items-center text-primary-600 dark:text-primary-400 font-semibold">
+        <a
+          href="/"
+          class="flex items-center text-primary-600 dark:text-primary-400 font-semibold"
+        >
           <span class="text-lg">LedgerLink</span>
         </a>
         <% if (user && currentPage !== 'login') { %>
-          <nav class="hidden md:flex space-x-4 text-sm">
-            <a href="/dashboard" class="px-2 py-1 rounded-md <%= currentPage==='dashboard' ? 'bg-primary-100 text-primary-700 dark:bg-primary-800/40 dark:text-primary-200' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white' %>">Dashboard</a>
-            <a href="/settings" class="px-2 py-1 rounded-md <%= currentPage==='settings' ? 'bg-primary-100 text-primary-700 dark:bg-primary-800/40 dark:text-primary-200' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white' %>">Settings</a>
-            <% if (user.is_admin) { %>
-              <a href="/admin" class="px-2 py-1 rounded-md <%= currentPage==='admin' ? 'bg-primary-100 text-primary-700 dark:bg-primary-800/40 dark:text-primary-200' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white' %>">Admin</a>
-              <a href="/admin/users" class="px-2 py-1 rounded-md <%= currentPage==='admin-users' ? 'bg-primary-100 text-primary-700 dark:bg-primary-800/40 dark:text-primary-200' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white' %>">Users</a>
-            <% } %>
-          </nav>
+        <nav class="hidden md:flex space-x-4 text-sm">
+          <a
+            href="/dashboard"
+            class="px-2 py-1 rounded-md <%= currentPage==='dashboard' ? 'bg-primary-100 text-primary-700 dark:bg-primary-800/40 dark:text-primary-200' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white' %>"
+            >Dashboard</a
+          >
+          <a
+            href="/settings"
+            class="px-2 py-1 rounded-md <%= currentPage==='settings' ? 'bg-primary-100 text-primary-700 dark:bg-primary-800/40 dark:text-primary-200' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white' %>"
+            >Settings</a
+          >
+          <% if (user.is_admin) { %>
+          <a
+            href="/admin"
+            class="px-2 py-1 rounded-md <%= currentPage==='admin' ? 'bg-primary-100 text-primary-700 dark:bg-primary-800/40 dark:text-primary-200' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white' %>"
+            >Admin</a
+          >
+          <a
+            href="/admin/users"
+            class="px-2 py-1 rounded-md <%= currentPage==='admin-users' ? 'bg-primary-100 text-primary-700 dark:bg-primary-800/40 dark:text-primary-200' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white' %>"
+            >Users</a
+          >
+          <% } %>
+        </nav>
         <% } %>
       </div>
       <div class="flex items-center space-x-4">
-        <button id="theme-toggle" type="button" class="p-2 rounded-md border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Toggle theme">
+        <button
+          id="theme-toggle"
+          type="button"
+          class="p-2 rounded-md border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+          aria-label="Toggle theme"
+        >
           <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+            />
           </svg>
         </button>
         <% if (user && currentPage !== 'login') { %>
-          <div class="hidden sm:flex items-center text-sm text-gray-600 dark:text-gray-300 max-w-[200px] truncate" title="<%= (user.preferred_name || user.email) %>">
-            <span class="truncate"><%= user.preferred_name || user.email %></span>
-          </div>
-          <a href="/auth/logout" class="btn-secondary py-1 px-3 text-sm">Logout</a>
+        <div
+          class="hidden sm:flex items-center text-sm text-gray-600 dark:text-gray-300 max-w-[200px] truncate"
+          title="<%= (user.preferred_name || user.email) %>"
+        >
+          <span class="truncate"><%= user.preferred_name || user.email %></span>
+        </div>
+        <a href="/auth/logout" class="btn-secondary py-1 px-3 text-sm">Logout</a>
         <% } else { %>
-          <a href="/auth/login" class="btn-primary py-1 px-3 text-sm">Login</a>
+        <a href="/auth/login" class="btn-primary py-1 px-3 text-sm">Login</a>
         <% } %>
       </div>
     </div>

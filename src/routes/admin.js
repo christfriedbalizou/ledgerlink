@@ -96,6 +96,8 @@ router.get("/users", async (req, res) => {
           id: true,
           email: true,
           createdAt: true,
+          is_admin: true,
+          active: true,
         },
       }),
     ]);
@@ -133,7 +135,7 @@ router.get("/api/users", async (req, res) => {
 
     const where = {};
     if (search) {
-      where.email = { contains: search, mode: "insensitive" };
+      where.email = { contains: search };
     }
     if (activeFilter === "active") where.active = true;
     else if (activeFilter === "inactive") where.active = false;
