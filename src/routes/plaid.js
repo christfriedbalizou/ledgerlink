@@ -34,17 +34,15 @@ router.post("/link-token", async (req, res) => {
           "Missing required Plaid environment variables: PLAID_CLIENT_NAME, PLAID_COUNTRY_CODES, PLAID_LANGUAGE, PLAID_PRODUCTS",
       });
     }
-    let products = [];
-    const bodyProduct = req.body && req.body.product;
-    const queryProduct = req.query && req.query.product;
-    if (bodyProduct || queryProduct) {
-      products = [(bodyProduct || queryProduct).trim()];
-    } else {
-      products = envProducts
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean);
-    }
+    const requested = req.body?.product;
+    const products = requested
+      ? Array.isArray(requested)
+        ? requested
+        : [requested]
+      : envProducts
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean);
     const validProducts = products.filter((p) => VALID_LINK_FLOW_PRODUCTS.includes(p));
     const invalidProducts = products.filter(
       (p) => !VALID_LINK_FLOW_PRODUCTS.includes(p),
@@ -62,28 +60,25 @@ router.post("/link-token", async (req, res) => {
         `Ignoring unsupported Plaid products for link flow: ${invalidProducts.join(", ")}`,
       );
     }
-    const tokens = {};
-    logger.debug(`Creating Plaid link tokens for products:`, user);
-    for (const product of validProducts) {
-      try {
-        const response = await plaid.linkTokenCreate({
-          user: { client_user_id: user.id },
-          client_name: clientName,
-          products: [product],
-          country_codes: countryCodes.split(",").map((s) => s.trim()),
-          language,
-        });
-        logger.debug(`Plaid linkTokenCreate response for ${product}`, response.data);
-        tokens[product] = response.data.link_token;
-      } catch (err) {
-        logger.error(`Plaid linkTokenCreate failed for product ${product}:`, err);
-        tokens[product] = null;
-      }
-    }
-    if (validProducts.length === 1) {
-      res.json({ link_token: tokens[validProducts[0]] });
-    } else {
-      res.json({ tokens });
+    // Create a single link token that covers all requested valid products.
+    // This simplifies the client flow: one token can be used to link an item that supports multiple products.
+    try {
+      logger.debug(
+        `Creating Plaid link token for products: ${validProducts.join(", ")}`,
+        user.id,
+      );
+      const response = await plaid.linkTokenCreate({
+        user: { client_user_id: user.id },
+        client_name: clientName,
+        products: validProducts,
+        country_codes: countryCodes.split(",").map((s) => s.trim()),
+        language,
+      });
+      logger.debug(`Plaid linkTokenCreate response`, response.data);
+      return res.json({ link_token: response.data.link_token });
+    } catch (err) {
+      logger.error("Plaid linkTokenCreate failed for products", validProducts, err);
+      return res.status(502).json({ error: "link_token_creation_failed" });
     }
   } catch (err) {
     logger.error("Plaid link-token error", err);
@@ -191,9 +186,22 @@ router.post("/set-token", async (req, res) => {
         error: `Account per institution limit (${MAX_ACCOUNTS_PER_INSTITUTION}) reached for institution ${targetInstitutionForLimit}.`,
       });
     }
-    if (!product) {
-      logger.error("Missing product param in set-token");
-      return res.status(400).json({ error: "Missing product param" });
+    // Normalize product(s) - Plaid metadata may include an array of products
+    let productsStr = null;
+    if (Array.isArray(product)) {
+      productsStr = product.filter(Boolean).join(",");
+    } else if (typeof product === "string") {
+      productsStr = product;
+    }
+    // Fallback to default env configured products if none provided
+    if (!productsStr) {
+      const envProducts = process.env.PLAID_PRODUCTS || "";
+      productsStr =
+        envProducts
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)
+          .join(",") || null;
     }
     const plaid = getPlaidClient();
     const response = await plaid.itemPublicTokenExchange({ public_token });
@@ -202,7 +210,7 @@ router.post("/set-token", async (req, res) => {
     await PlaidItem.createForUser(user.id, {
       plaidItemId: response.data.item_id,
       plaidAccessToken: encryptedAccessToken,
-      products: product,
+      products: productsStr,
       institutionName,
       institutionId: effectiveInstitutionId || institutionId,
       plaidInstitutionId,
@@ -262,7 +270,7 @@ router.post("/set-token", async (req, res) => {
       }
     }
     logger.info(
-      `PlaidItem and Account linked for user ${user.id}, item_id: ${response.data.item_id}, product: ${product}`,
+      `PlaidItem and Account linked for user ${user.id}, item_id: ${response.data.item_id}, products: ${productsStr}`,
     );
     res.json({ item_id: response.data.item_id });
   } catch (err) {

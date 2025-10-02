@@ -392,16 +392,15 @@ async function linkNewAccount() {
     showNotification("Preparing Plaid Link...", "info");
     setLinkButtonState(true);
     await loadPlaidScript();
-    const productSelect = document.getElementById("plaid-product");
-    const product = productSelect ? productSelect.value : undefined;
-    const url =
-      "/api/plaid/link-token" +
-      (product ? `?product=${encodeURIComponent(product)}` : "");
+    const url = "/api/plaid/link-token";
     const tokenResp = await fetch(url, { method: "POST" });
     if (!tokenResp.ok) throw new Error("Failed to create link token");
     const tokenData = await tokenResp.json();
-    const linkToken = tokenData.link_token || tokenData.linkToken || null;
-    if (!linkToken) throw new Error("link_token missing in response");
+    const linkToken = tokenData && tokenData.link_token;
+    if (!linkToken) {
+      setLinkButtonState(false);
+      throw new Error("link_token missing in response");
+    }
 
     plaidLinkHandler = window.Plaid.create({
       token: linkToken,
@@ -410,9 +409,7 @@ async function linkNewAccount() {
           showNotification("Link success. Finalizing...", "info");
           const institutionName = metadata.institution?.name || "Unknown";
           const plaidInstitutionId = metadata.institution?.institution_id || null;
-          const product =
-            (metadata?.products && metadata.products[0]) || "transactions";
-          // Capture all accounts metadata if present
+          const product = metadata?.products;
           const accountsPayload = Array.isArray(metadata.accounts)
             ? metadata.accounts.map((a) => ({
                 id: a.id,

@@ -48,28 +48,6 @@ describe("Plaid Integration (Sandbox)", () => {
     await prisma.$disconnect();
   });
 
-  it("should create a Plaid link token for each valid product in PLAID_PRODUCTS", async () => {
-    const validProducts = envProducts.filter((p) =>
-      VALID_LINK_FLOW_PRODUCTS.includes(p),
-    );
-    const res = await request(app).post("/api/plaid/link-token").send();
-    if (validProducts.length === 1) {
-      expect(res.status).toBe(200);
-      expect(res.body).toHaveProperty("link_token");
-      expect(typeof res.body.link_token).toBe("string");
-    } else {
-      expect(res.status).toBe(200);
-      expect(res.body).toHaveProperty("tokens");
-      for (const product of validProducts) {
-        expect(res.body.tokens).toHaveProperty(product);
-        // token may be null if Plaid rejected the product, but should be string if present
-        if (res.body.tokens[product] !== null) {
-          expect(typeof res.body.tokens[product]).toBe("string");
-        }
-      }
-    }
-  });
-
   it("should create a Plaid link token for a specific product", async () => {
     const product = envProducts[0];
     const res = await request(app).post("/api/plaid/link-token").send({ product });
