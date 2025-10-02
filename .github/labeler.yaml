@@ -29,15 +29,6 @@ test:
   - changed-files:
       - any-glob-to-any-file: test/**/*
       - any-glob-to-any-file: "**/*.test.js"
-type/major:
-  - changed-files:
-      - any-glob-to-any-file: "**"
-type/minor:
-  - changed-files:
-      - any-glob-to-any-file: "**"
-type/patch:
-  - changed-files:
-      - any-glob-to-any-file: "**"
 renovate/github-release:
   - changed-files:
       - any-glob-to-any-file: .github/workflows/**/*
