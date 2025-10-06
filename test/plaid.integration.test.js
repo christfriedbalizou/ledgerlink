@@ -48,18 +48,10 @@ describe("Plaid Integration (Sandbox)", () => {
     await prisma.$disconnect();
   });
 
-  it("should create a Plaid link token for a specific product", async () => {
-    const product = envProducts[0];
-    const res = await request(app).post("/api/plaid/link-token").send({ product });
-    if (VALID_LINK_FLOW_PRODUCTS.includes(product)) {
-      expect(res.status).toBe(200);
-      expect(res.body).toHaveProperty("link_token");
-      expect(typeof res.body.link_token).toBe("string");
-    } else {
-      expect(res.status).toBe(400);
-      expect(res.body).toHaveProperty("error");
-    }
-  });
+  // The link-token flow is now forced to transactions+balance on the server
+  // and tests that assumed configurable per-product link tokens are no
+  // longer valid. The previous test was removed to reflect the new
+  // server behavior.
 
   describe("Institution Deletion", () => {
     let userApp;
