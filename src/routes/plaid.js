@@ -1,7 +1,7 @@
 import express from "express";
 
 import { getPlaidClient } from "../config/plaid.js";
-import { VALID_LINK_FLOW_PRODUCTS } from "../constants/plaid.js";
+import { LINK_FLOW_PRODUCTS } from "../constants/plaid.js";
 import prisma from "../db/prisma.js";
 import Account from "../models/Account.js";
 import Institution from "../models/Institution.js";
@@ -16,8 +16,6 @@ const MAX_INSTITUTIONS_PER_USER =
 const MAX_ACCOUNTS_PER_INSTITUTION =
   parseInt(process.env.MAX_ACCOUNTS_PER_INSTITUTION, 10) || 1;
 
-// Uses VALID_LINK_FLOW_PRODUCTS from constants
-
 router.post("/link-token", async (req, res) => {
   logger.info("/plaid/link-token");
   try {
@@ -26,7 +24,7 @@ router.post("/link-token", async (req, res) => {
     const clientName = process.env.PLAID_CLIENT_NAME;
     const countryCodes = process.env.PLAID_COUNTRY_CODES || "US";
     const language = process.env.PLAID_LANGUAGE || "en";
-    const productsForLink = VALID_LINK_FLOW_PRODUCTS.slice();
+    const productsForLink = LINK_FLOW_PRODUCTS;
     try {
       logger.debug(
         `Creating Plaid link token for products: ${productsForLink.join(", ")}`,
@@ -156,7 +154,7 @@ router.post("/set-token", async (req, res) => {
       });
     }
   // Persist the canonical products from constants
-  const productsStr = VALID_LINK_FLOW_PRODUCTS.join(",");
+  const productsStr = LINK_FLOW_PRODUCTS.join(",");
     const plaid = getPlaidClient();
     const response = await plaid.itemPublicTokenExchange({ public_token });
     logger.debug("Plaid itemPublicTokenExchange response", response.data);

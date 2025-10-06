@@ -2,7 +2,7 @@ import express from "express";
 import session from "express-session";
 import request from "supertest";
 
-import { VALID_LINK_FLOW_PRODUCTS } from "../src/constants/plaid.js";
+import { LINK_FLOW_PRODUCTS } from "../src/constants/plaid.js";
 import prisma from "../src/db/prisma.js";
 import Account from "../src/models/Account.js";
 import PlaidItem from "../src/models/PlaidItem.js";
